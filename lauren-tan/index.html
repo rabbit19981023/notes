@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW" data-theme="soft-paper">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lauren Tan 知識庫：AI 開發工程的做法與原則</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=LXGW+WenKai+TC:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<script>
+  (function () {
+    var t;
+    try { t = localStorage.getItem('nz-theme'); } catch (e) {}
+    if (!t) t = matchMedia('(prefers-color-scheme: dark)').matches ? 'night-ink' : 'soft-paper';
+    document.documentElement.dataset.theme = t;
+  })();
+</script>
+<style>
+:root {
+  --font-sans: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+  --font-hand: "LXGW WenKai TC", "Noto Sans TC", "PingFang TC", serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px; --space-5: 24px; --space-6: 32px; --space-7: 56px;
+  --radius-sm: 4px; --radius-md: 8px; --radius-pill: 999px;
+  --wobble-sm: 255px 15px 225px 15px/15px 225px 15px 255px;
+  --wobble-lg: 18px 6px 22px 5px/5px 22px 6px 18px;
+  --stroke-hair: 1px; --stroke-hand: 1.5px; --stroke-node: 1.8px;
+}
+[data-theme="soft-paper"] { --page:#e6e1d3; --surface:#eeeadf; --sunk:#ddd7c7; --ink:#2b2a26; --ink-muted:#5c584f; --line:#cfc8b7; --accent:#2f6b4f; --accent-soft:#d3e1d6; --on-accent:#f2eee4; --info:#3b6283; --info-soft:#d5dfe7; --ok:#2f6b4f; --ok-soft:#d3e1d6; --warn:#7e5310; --warn-soft:#eadbbc; --bad:#9e3f35; --bad-soft:#ebd2cc; --code-bg:#dcd6c6; --code-ink:#2b2a26; --highlight:#e3cf8e; }
+[data-theme="dusk"] { --page:#d3cdbe; --surface:#ddd8ca; --sunk:#c9c2b1; --ink:#24231f; --ink-muted:#4f4b43; --line:#bcb4a1; --accent:#265940; --accent-soft:#c3d3c5; --on-accent:#f2eee4; --info:#30557a; --info-soft:#c3cfd9; --ok:#265940; --ok-soft:#c3d3c5; --warn:#6b480d; --warn-soft:#dcc9a4; --bad:#8a372e; --bad-soft:#dcc1ba; --code-bg:#c7c0ae; --code-ink:#24231f; --highlight:#d9c27a; }
+[data-theme="graphite"] { --page:#2a2c29; --surface:#323531; --sunk:#3a3d38; --ink:#e2e2da; --ink-muted:#aeb0a7; --line:#4a4d46; --accent:#8fbf9f; --accent-soft:#33453a; --on-accent:#1f211e; --info:#9db8d3; --info-soft:#344150; --ok:#8fbf9f; --ok-soft:#33453a; --warn:#e0b865; --warn-soft:#4a4128; --bad:#ec9785; --bad-soft:#4d312c; --code-bg:#242623; --code-ink:#e2e2da; --highlight:#5a4e2a; }
+[data-theme="night-ink"] { --page:#1f1e1b; --surface:#282723; --sunk:#302f2a; --ink:#ddd7ca; --ink-muted:#a39d91; --line:#3d3b35; --accent:#86b497; --accent-soft:#253229; --on-accent:#1f1e1b; --info:#93afcb; --info-soft:#232c36; --ok:#86b497; --ok-soft:#253229; --warn:#d9ae62; --warn-soft:#3a3119; --bad:#e5907f; --bad-soft:#3d2622; --code-bg:#191815; --code-ink:#ddd7ca; --highlight:#4f4423; }
+[data-theme="deep-forest"] { --page:#141a17; --surface:#1b2320; --sunk:#222c28; --ink:#d3dcd5; --ink-muted:#93a49b; --line:#2f3b36; --accent:#7cc29a; --accent-soft:#1e3329; --on-accent:#141a17; --info:#8fb3d1; --info-soft:#1c2a33; --ok:#7cc29a; --ok-soft:#1e3329; --warn:#e0b865; --warn-soft:#352d17; --bad:#eb9482; --bad-soft:#3a221e; --code-bg:#0f1411; --code-ink:#d3dcd5; --highlight:#46401f; }
+
+/* components (暖紙墨綠 bundle) */
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { margin: 0; font-family: var(--font-sans); font-size: 15px; line-height: 27px; background: var(--page); color: var(--ink); }
+code { font-family: var(--font-mono); font-size: .86em; background: var(--sunk); color: var(--ink); padding: 1px 6px; border-radius: var(--radius-sm); }
+.nz-mark { background: linear-gradient(transparent 55%, var(--highlight) 55%); color: var(--ink); }
+.nz-eyebrow { font-family: var(--font-mono); font-size: 11.5px; line-height: 16px; font-weight: 600; color: var(--ink-muted); letter-spacing: .02em; text-transform: uppercase; display: block; }
+a { color: var(--accent); text-underline-offset: 3px; }
+a:focus-visible, summary:focus-visible, select:focus-visible { outline: 2px dashed var(--accent); outline-offset: 3px; }
+.nz-btn { font: inherit; font-size: 13px; line-height: 20px; font-weight: 500; padding: 5px 12px; border: var(--stroke-hand) solid var(--ink); border-radius: var(--wobble-sm); background: var(--surface); color: var(--ink); cursor: pointer; }
+.nz-badge { display: inline-block; font-size: 12px; line-height: 20px; font-weight: 500; padding: 0 var(--space-2); border-radius: var(--radius-pill); background: var(--sunk); color: var(--ink); white-space: nowrap; }
+.nz-badge-ok { background: var(--ok-soft); color: var(--ok); }
+.nz-badge-warn { background: var(--warn-soft); color: var(--warn); }
+.nz-badge-bad { background: var(--bad-soft); color: var(--bad); }
+.nz-badge-info { background: var(--info-soft); color: var(--info); }
+.nz-callout { display: flex; gap: var(--space-3); align-items: flex-start; padding: var(--space-3) var(--space-4); background: var(--warn-soft); color: var(--ink); border: var(--stroke-hand) solid var(--ink); border-radius: var(--wobble-lg); font-size: 14px; line-height: 24px; margin-top: var(--space-4); }
+.nz-callout b { color: var(--warn); }
+.nz-callout-icon { flex: none; width: 22px; height: 22px; margin-top: 1px; border-radius: var(--radius-pill); background: var(--warn); color: var(--page); display: grid; place-items: center; font-weight: 700; font-size: 13px; line-height: 1; }
+.nz-callout-ok { background: var(--ok-soft); } .nz-callout-ok .nz-callout-icon { background: var(--ok); } .nz-callout-ok b { color: var(--ok); }
+.nz-callout-info { background: var(--info-soft); } .nz-callout-info .nz-callout-icon { background: var(--info); } .nz-callout-info b { color: var(--info); }
+.nz-callout-bad { background: var(--bad-soft); } .nz-callout-bad .nz-callout-icon { background: var(--bad); } .nz-callout-bad b { color: var(--bad); }
+.nz-card { background: var(--surface); color: var(--ink); border: var(--stroke-hand) solid var(--ink); border-radius: var(--wobble-lg); padding: var(--space-4); }
+.nz-card-title { font-size: 16px; line-height: 25px; font-weight: 700; margin: var(--space-1) 0; }
+.nz-card-body { font-size: 14px; line-height: 24px; color: var(--ink-muted); margin: 0; }
+.nz-flow { display: flex; align-items: center; gap: var(--space-1); padding: var(--space-4); background: var(--surface); border: var(--stroke-hand) solid var(--ink); border-radius: var(--wobble-lg); margin-top: var(--space-3); }
+.nz-flow-bare { background: none; border: 0; padding: var(--space-2) 0; }
+.nz-node { flex: 1; min-width: 0; text-align: center; padding: 10px var(--space-2); font-family: var(--font-hand); font-size: 15px; line-height: 22px; color: var(--ink); background: var(--surface); border: var(--stroke-node) solid var(--ink); border-radius: var(--wobble-sm); }
+.nz-node code { font-size: 12px; padding: 0 4px; }
+.nz-node-start { background: var(--sunk); }
+.nz-node-key { background: var(--accent-soft); }
+.nz-node-end { background: var(--ok-soft); }
+.nz-node-bad { background: var(--bad-soft); }
+.nz-arrow { flex: none; width: 30px; height: 16px; fill: none; stroke: currentColor; stroke-width: var(--stroke-node); stroke-linecap: round; stroke-linejoin: round; color: var(--ink); }
+.nz-list { background: var(--surface); border: var(--stroke-hand) solid var(--ink); border-radius: var(--wobble-lg); overflow: hidden; margin-top: var(--space-3); }
+.nz-list-row { display: flex; align-items: flex-start; gap: var(--space-3); padding: 10px var(--space-4); border-top: var(--stroke-hair) solid var(--line); font-size: 14px; line-height: 22px; }
+.nz-list-row:first-child { border-top: 0; }
+.nz-list-row .nz-badge { min-width: 96px; text-align: center; margin-top: 1px; }
+.nz-list-title { flex: 1; min-width: 0; }
+.nz-list-title small { display: block; color: var(--ink-muted); font-size: 13px; line-height: 21px; }
+.nz-note { display: inline-block; max-width: 230px; padding: var(--space-3) var(--space-4); background: var(--highlight); color: var(--ink); font-family: var(--font-hand); font-size: 15px; line-height: 22px; border: var(--stroke-hand) solid var(--ink); border-radius: var(--wobble-lg); transform: rotate(-2deg); }
+
+/* page */
+.topnav { position: sticky; top: 0; z-index: 10; background: var(--page); border-bottom: var(--stroke-hair) solid var(--line); }
+.topnav .in { max-width: 940px; margin: 0 auto; padding: 8px var(--space-6); display: flex; align-items: center; gap: var(--space-3); }
+.topnav nav { flex: 1; min-width: 0; display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; }
+.topnav nav::-webkit-scrollbar { display: none; }
+.topnav nav a { flex: none; font-size: 13px; color: var(--ink-muted); text-decoration: none; padding: 2px 9px; border-radius: var(--radius-pill); white-space: nowrap; }
+.topnav nav a:hover { color: var(--ink); background: var(--sunk); }
+.topnav select { appearance: none; padding-right: 26px; background-image: linear-gradient(45deg, transparent 50%, var(--ink) 50%), linear-gradient(135deg, var(--ink) 50%, transparent 50%); background-position: calc(100% - 13px) 50%, calc(100% - 8px) 50%; background-size: 5px 5px; background-repeat: no-repeat; flex: none; }
+.wrap { max-width: 940px; margin: 0 auto; padding: var(--space-6) var(--space-6) var(--space-7); }
+.hero { display: grid; grid-template-columns: 1fr auto; gap: var(--space-5); align-items: end; }
+.display { font-family: var(--font-hand); font-size: 44px; line-height: 52px; font-weight: 700; margin: var(--space-2) 0 var(--space-2); }
+.meta { font-size: 14px; line-height: 22px; color: var(--ink-muted); margin: 0; }
+.tldr { margin: var(--space-5) 0 0; font-size: 19px; line-height: 32px; font-weight: 500; max-width: 760px; }
+section { margin-top: var(--space-7); scroll-margin-top: 56px; }
+h2 { font-size: 25px; line-height: 35px; font-weight: 900; margin: var(--space-1) 0 var(--space-2); }
+h3 { font-size: 16px; line-height: 25px; font-weight: 700; margin: var(--space-5) 0 0; }
+p { margin: 0 0 var(--space-3); }
+.lead { color: var(--ink-muted); max-width: 680px; }
+figure { margin: var(--space-4) 0 0; }
+.fig { background: var(--surface); border: var(--stroke-hand) solid var(--ink); border-radius: var(--wobble-lg); padding: var(--space-4); overflow-x: auto; }
+.fig svg { display: block; width: 100%; height: auto; min-width: 600px; }
+.fig.narrow svg { min-width: 460px; max-width: 660px; }
+figcaption { font-size: 13px; line-height: 21px; color: var(--ink-muted); margin-top: var(--space-2); }
+figcaption .nz-eyebrow { display: inline; margin-right: var(--space-2); }
+.fig svg path { stroke: var(--ink); stroke-width: var(--stroke-node); stroke-linejoin: round; stroke-linecap: round; }
+.fig svg path.grid { stroke: var(--line); stroke-width: 1; stroke-dasharray: 3 5; }
+.fig svg path.tick { stroke: var(--ink-muted); stroke-width: 1.2; }
+.f-accent { fill: var(--accent-soft); } .f-info { fill: var(--info-soft); } .f-warn { fill: var(--warn-soft); }
+.f-sunk { fill: var(--sunk); } .f-surface { fill: var(--surface); } .f-ok { fill: var(--ok-soft); } .f-bad { fill: var(--bad-soft); }
+.fig svg path.f-dash { fill: var(--surface); stroke-dasharray: 6 5; }
+.arr { fill: none; }
+.dot-ok { fill: var(--ok); } .dot-info { fill: var(--info); } .dot-warn { fill: var(--warn); } .dot-ink { fill: var(--ink); }
+svg text { fill: var(--ink); }
+svg text.muted { fill: var(--ink-muted); }
+svg text.accent-ink { fill: var(--accent); }
+.t-hand { font-family: var(--font-hand); } .t-sans { font-family: var(--font-sans); } .t-mono { font-family: var(--font-mono); }
+.t-xl { font-size: 24px; font-weight: 700; } .t-lg { font-size: 19px; font-weight: 700; }
+.t-md { font-size: 15px; } .t-sm { font-size: 13px; } .t-xs { font-size: 11.5px; }
+.cards { display: grid; gap: var(--space-3); margin-top: var(--space-3); }
+.cards.cols-2 { grid-template-columns: 1fr 1fr; }
+.cards.cols-3 { grid-template-columns: repeat(3, 1fr); }
+.related { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-3); margin-top: var(--space-5); }
+.related a { display: block; text-decoration: none; color: var(--ink); }
+.related a:hover .nz-card { background: var(--sunk); }
+.related .nz-card-title::after { content: " ↗"; color: var(--accent); }
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-3); margin-top: var(--space-4); }
+.stat { padding: var(--space-3) var(--space-4); }
+.stat-num { font-family: var(--font-hand); font-size: 26px; line-height: 34px; font-weight: 700; }
+.stat-label { font-size: 13px; line-height: 20px; color: var(--ink-muted); }
+.fine { font-size: 13px; line-height: 21px; color: var(--ink-muted); margin: var(--space-2) 0 0; }
+details.more { margin-top: var(--space-4); }
+details.more summary { cursor: pointer; font-weight: 700; font-size: 15px; list-style: none; }
+details.more summary::-webkit-details-marker { display: none; }
+details.more summary::before { content: "＋ "; color: var(--accent); }
+details.more[open] summary::before { content: "－ "; }
+.tw { overflow-x: auto; border: var(--stroke-hand) solid var(--ink); border-radius: var(--wobble-lg); background: var(--surface); margin-top: var(--space-3); }
+table { border-collapse: collapse; width: 100%; min-width: 560px; font-size: 14px; line-height: 22px; }
+td { padding: 7px var(--space-4); border-top: var(--stroke-hair) solid var(--line); vertical-align: top; }
+tr:first-child td { border-top: 0; }
+td:first-child { white-space: nowrap; width: 1%; }
+tr.grp td { background: var(--sunk); font-weight: 700; font-size: 13px; }
+.src h3 { margin-top: var(--space-4); font-size: 14px; }
+.src ul { margin: var(--space-1) 0 0; padding-left: var(--space-5); font-size: 14px; line-height: 25px; }
+.src li small { color: var(--ink-muted); }
+.legend { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); font-size: 13px; color: var(--ink-muted); margin-top: var(--space-3); align-items: center; }
+footer { margin-top: var(--space-7); padding-top: var(--space-4); border-top: var(--stroke-hair) solid var(--line); font-size: 13px; color: var(--ink-muted); }
+
+@media (max-width: 760px) {
+  .wrap { padding: var(--space-4) var(--space-4) var(--space-7); }
+  .topnav .in { padding: 6px var(--space-4); }
+  .display { font-size: 32px; line-height: 40px; }
+  .hero { grid-template-columns: 1fr; }
+  .hero .nz-note { justify-self: start; }
+  .cards.cols-2, .cards.cols-3, .related { grid-template-columns: 1fr; }
+  .stats { grid-template-columns: 1fr 1fr; }
+  .nz-flow { flex-direction: column; align-items: stretch; }
+  .nz-flow .nz-arrow { transform: rotate(90deg); align-self: center; margin: 4px 0; }
+  .nz-list-row { flex-direction: column; gap: var(--space-1); }
+  .nz-list-row .nz-badge { min-width: 0; }
+}
+</style>
+</head>
+<body>
+
+<div class="topnav"><div class="in">
+  <nav aria-label="章節">
+    <a href="#line">01 一條線</a>
+    <a href="#mindset">02 心法</a>
+    <a href="#layers">03 防線</a>
+    <a href="#verify">04 驗證</a>
+    <a href="#letgo">05 放手</a>
+    <a href="#daily">06 日常</a>
+    <a href="#outer">07 外迴圈</a>
+    <a href="#pstack">08 pstack</a>
+    <a href="#shifts">09 演變</a>
+    <a href="#numbers">10 數字與爭議</a>
+    <a href="#fixes">11 對齊</a>
+    <a href="#sources">來源</a>
+  </nav>
+  <select class="nz-btn" id="theme" aria-label="切換亮度">
+    <option value="soft-paper">柔光紙</option>
+    <option value="dusk">暮色</option>
+    <option value="graphite">石墨</option>
+    <option value="night-ink">夜讀暖墨</option>
+    <option value="deep-forest">深林</option>
+  </select>
+</div></div>
+
+<div class="wrap">
+
+<header>
+  <div class="hero">
+    <div>
+      <span class="nz-eyebrow">知識庫 · 隨時更新 · 資料截至 2026-11-19</span>
+      <h1 class="display">Lauren Tan 的 AI 開發工程</h1>
+      <p class="meta">@poteto · SpaceX 旗下 Grok Bot 核心團隊 · 前 Cursor／Meta React Compiler／Netflix · pstack 作者</p>
+    </div>
+    <div class="nz-note">不是信任 agent，<br>是把環境做到能信任</div>
+  </div>
+  <p class="tldr">一句話：<span class="nz-mark">把每一次糾正寫進程式碼結構，讓沒人盯著時 agent 交出來的東西也能接受</span>。速度是信任的副產品，不是目標。</p>
+
+  <figure>
+    <div class="fig"><svg viewBox="0 0 780 300" role="img" aria-label="核心迴圈：觀察 agent、找出失敗、編進結構、要求證據、再放手" class=""><path class="f-sunk" d="M27.4,24.9 Q115.0,26.7 200.6,26.1 Q209.6,24.6 210.0,32.5 Q209.7,58.0 208.6,80.7 Q209.8,91.0 200.8,89.1 Q115.0,90.6 29.4,90.2 Q19.7,91.5 18.5,83.1 Q19.1,58.0 18.9,32.8 Q19.4,27.0 27.0,26.3Z"/><text class="t-hand t-lg" x="115.0" y="54" text-anchor="middle">觀察</text><text class="t-sans t-xs muted" x="115.0" y="76" text-anchor="middle">讀 tool call 與 thinking</text><path class="f-bad" d="M303.4,25.6 Q390.0,26.2 475.6,24.6 Q484.1,26.6 484.8,33.4 Q485.4,58.0 484.9,81.4 Q485.9,90.6 476.2,90.2 Q390.0,90.1 304.2,90.7 Q294.3,91.5 293.8,81.7 Q296.1,58.0 293.9,34.0 Q293.5,26.5 303.8,26.2Z"/><text class="t-hand t-lg" x="390.0" y="54" text-anchor="middle">失敗</text><text class="t-sans t-xs muted" x="390.0" y="76" text-anchor="middle">agent 在猜的地方</text><path class="f-accent" d="M579.2,25.4 Q665.0,26.9 752.3,26.3 Q759.9,27.1 761.4,33.9 Q760.7,58.0 758.6,82.6 Q760.5,91.6 753.0,89.3 Q665.0,89.5 578.5,88.5 Q569.9,88.9 568.8,80.6 Q571.2,58.0 568.8,33.2 Q569.7,27.2 576.7,25.8Z"/><text class="t-hand t-lg" x="665.0" y="54" text-anchor="middle">結構</text><text class="t-sans t-xs muted" x="665.0" y="76" text-anchor="middle">設計 › lint › skill</text><path class="f-info" d="M578.2,197.2 Q665.0,197.4 753.2,195.3 Q759.7,195.5 761.2,205.5 Q758.5,228.0 759.0,251.1 Q759.1,260.0 752.3,259.2 Q665.0,257.8 577.7,259.6 Q570.2,261.4 570.6,252.0 Q570.5,228.0 570.6,202.6 Q571.3,196.9 579.2,197.0Z"/><text class="t-hand t-lg" x="665.0" y="224" text-anchor="middle">證據</text><text class="t-sans t-xs muted" x="665.0" y="246" text-anchor="middle">獨立驗證、可重跑</text><path class="f-ok" d="M302.7,195.7 Q390.0,194.3 477.4,194.6 Q483.6,195.1 483.9,203.5 Q483.0,228.0 483.4,250.9 Q483.7,259.6 475.5,261.2 Q390.0,260.5 301.9,259.2 Q294.5,259.6 293.8,253.1 Q297.2,228.0 294.9,203.9 Q293.7,194.7 302.5,195.2Z"/><text class="t-hand t-lg" x="390.0" y="224" text-anchor="middle">放手</text><text class="t-sans t-xs muted" x="390.0" y="246" text-anchor="middle">並行 › 外迴圈 › 自動 merge</text><path class="arr" d="M216,58 Q251.5,64.0 287,58 M278.0,63.0 L287,58 L278.0,53.0"/><text class="t-hand t-sm muted" x="252.5" y="46" text-anchor="middle">找到</text><path class="arr" d="M491,58 Q526.5,64.0 562,58 M553.0,63.0 L562,58 L553.0,53.0"/><text class="t-hand t-sm muted" x="527.5" y="46" text-anchor="middle">編進去</text><path class="arr" d="M665.0,96 Q657.0,142.0 665.0,188 M660.0,179.0 L665.0,188 L670.0,179.0"/><text class="t-hand t-sm muted" x="679.0" y="148.0" text-anchor="start">要證據</text><path class="arr" d="M564,228 Q528.5,222.0 493,228 M502.0,223.0 L493,228 L502.0,233.0"/><text class="t-hand t-sm muted" x="527.5" y="216" text-anchor="middle">放寬</text><path class="arr" d="M289,230 Q185.1,186.3 115.0,98 M125.2,99.5 L115.0,98 L119.1,107.4"/><text class="t-hand t-sm muted" x="26" y="178" text-anchor="start">新的失敗</text><text class="t-hand t-xl accent-ink" x="390.0" y="151.0" text-anchor="middle">信任 ↑ ＝ 產出 ↑</text></svg></div>
+    <figcaption><span class="nz-eyebrow">總覽</span>她的整套做法就是這個迴圈。每轉一圈，能放手的範圍就大一點；下面各節依序展開每一站。</figcaption>
+  </figure>
+
+  <div class="related">
+    <a href="https://claude.ai/artifact/LjRh5tAMW7QjMaqXvKC77f"><div class="nz-card"><span class="nz-eyebrow">深入 · 系統</span><p class="nz-card-title">Lauren Tan 的 AI 工程系統</p><p class="nz-card-body">信任曲線、五層防線、從零建置路線圖</p></div></a>
+    <a href="https://claude.ai/artifact/MtNVvwRcjcvUtgnY7NkxWh"><div class="nz-card"><span class="nz-eyebrow">深入 · 演講</span><p class="nz-card-title">All Code Is Slop (Except Mine)</p><p class="nz-card-body">AI Engineer CODE 2026 圖解筆記</p></div></a>
+    <a href="https://claude.ai/artifact/M8brHjGEehV12soi4YGt15"><div class="nz-card"><span class="nz-eyebrow">深入 · 實作</span><p class="nz-card-title">先深後快</p><p class="nz-card-body">pstack 在 Claude Code 上的 starter kit</p></div></a>
+  </div>
+</header>
+
+<!-- 01 -->
+<section id="line">
+  <span class="nz-eyebrow">01 · 她是誰</span>
+  <h2>同一套品味，用了 12 年，只是換了工具</h2>
+  <p class="lead">新加坡出身、讀會計與財務，用財務建模課的 Excel VBA 入門寫程式，做過 UI 設計。下面這些念頭，她在 2014–2020 年的文章和演講裡就有了。</p>
+  <figure><div class="fig"><svg viewBox="0 0 860 210" role="img" aria-label="經歷時間線：2014 Ember、2016 Netflix、2020 Meta、2026 Cursor 與 SpaceX" class=""><path class="arr" d="M68,105 Q430.0,101 796,106"/><circle class="dot-ink" cx="78" cy="105" r="5"/><text class="t-mono t-xs muted" x="78.0" y="34" text-anchor="middle">2014</text><text class="t-hand t-md" x="78.0" y="56" text-anchor="middle">Ember 部落格</text><text class="t-sans t-xs muted" x="78.0" y="76" text-anchor="middle">設計師自學寫程式</text><path class="tick" d="M78,84 L78,98"/><circle class="dot-ink" cx="179" cy="105" r="5"/><path class="tick" d="M179,112 L179,126"/><text class="t-mono t-xs muted" x="178.57142857142856" y="146" text-anchor="middle">2016</text><text class="t-hand t-md" x="178.57142857142856" y="168" text-anchor="middle">Netflix</text><text class="t-sans t-xs muted" x="178.57142857142856" y="188" text-anchor="middle">2018 起當 EM</text><circle class="dot-ink" cx="279" cy="105" r="5"/><text class="t-mono t-xs muted" x="279.1428571428571" y="34" text-anchor="middle">2020</text><text class="t-hand t-md" x="279.1428571428571" y="56" text-anchor="middle">Meta React</text><text class="t-sans t-xs muted" x="279.1428571428571" y="76" text-anchor="middle">React Compiler</text><path class="tick" d="M279,84 L279,98"/><circle class="dot-ink" cx="380" cy="105" r="5"/><path class="tick" d="M380,112 L380,126"/><text class="t-mono t-xs muted" x="379.7142857142857" y="146" text-anchor="middle">2025</text><text class="t-hand t-md" x="379.7142857142857" y="168" text-anchor="middle">給 agent 的 lint</text><text class="t-sans t-xs muted" x="379.7142857142857" y="188" text-anchor="middle">react-mcp-server</text><circle class="dot-ink" cx="480" cy="105" r="5"/><text class="t-mono t-xs muted" x="480.2857142857143" y="34" text-anchor="middle">2026-02</text><text class="t-hand t-md" x="480.2857142857143" y="56" text-anchor="middle">noodle</text><text class="t-sans t-xs muted" x="480.2857142857143" y="76" text-anchor="middle">agent 編排實驗</text><path class="tick" d="M480,84 L480,98"/><circle class="dot-ink" cx="581" cy="105" r="5"/><path class="tick" d="M581,112 L581,126"/><text class="t-mono t-xs muted" x="580.8571428571429" y="146" text-anchor="middle">2026-03</text><text class="t-hand t-md" x="580.8571428571429" y="168" text-anchor="middle">Cursor</text><text class="t-sans t-xs muted" x="580.8571428571429" y="188" text-anchor="middle">3 月底加入</text><circle class="dot-ink" cx="681" cy="105" r="5"/><text class="t-mono t-xs muted" x="681.4285714285714" y="34" text-anchor="middle">2026-05</text><text class="t-hand t-md" x="681.4285714285714" y="56" text-anchor="middle">pstack</text><text class="t-sans t-xs muted" x="681.4285714285714" y="76" text-anchor="middle">05-22 開源</text><path class="tick" d="M681,84 L681,98"/><circle class="dot-ink" cx="782" cy="105" r="5"/><path class="tick" d="M782,112 L782,126"/><text class="t-mono t-xs muted" x="782.0" y="146" text-anchor="middle">2026-08</text><text class="t-hand t-md" x="782.0" y="168" text-anchor="middle">SpaceX</text><text class="t-sans t-xs muted" x="782.0" y="188" text-anchor="middle">收購 Cursor、Grok Bot</text></svg></div></figure>
+  <h3>一直沒變的念頭</h3>
+  <p class="fine">箭頭後面的對照是本頁整理；她在早期資料裡沒談過 AI。</p>
+  <div class="nz-list"><div class="nz-list-row"><span class="nz-badge nz-badge-ok">2014</span><div class="nz-list-title">做了就講出來<small>公開寫作與演講 → 每個改動附證據、<code>show-me-your-work</code></small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-ok">2015</span><div class="nz-list-title">Experience First<small>DockYard 時期的文章，2026 年成為同名原則，名字沒變</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-ok">2016</span><div class="nz-list-title">讓無效狀態進不來<small>ember-changeset → Rules of React 的 lint → Dune 禁用 <code>useEffect</code></small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-ok">2018</span><div class="nz-list-title">約束越多，出錯的方式越少<small>型別演講 → 原則 Type System Discipline、Model the Domain</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-ok">2018</span><div class="nz-list-title">我很懶，所以讓工具自動抓錯<small>型別 → 驗證 skill、<code>automate-me</code></small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-ok">2020</span><div class="nz-list-title">乾淨重來是幻覺<small>〈This Time Is Different〉→ 用從零的角度設計，但增量交付</small></div></div></div>
+  <div class="nz-callout nz-callout-info"><span class="nz-callout-icon">i</span><div><b>她在 Meta 就開始做 agent 工具。</b>2025-04 做了 react-mcp-server；2025-12 在 React Compiler 加了專門寫給 agent 讀的 lint 訊息。都比加入 Cursor 早。</div></div>
+</section>
+
+<!-- 02 -->
+<section id="mindset">
+  <span class="nz-eyebrow">02 · 心法</span>
+  <h2>十條心法：工具會換，這些不會</h2>
+  <p class="lead">從她的演講、貼文、pstack 原則裡收斂出來。後面每一節的做法，都是在落實其中幾條。</p>
+  <div class="cards cols-2"><div class="nz-card"><span class="nz-eyebrow">trust → throughput</span><p class="nz-card-title">信任才是產出</p><p class="nz-card-body">要問「做到什麼程度我才敢不看」，而不是「還能多開幾個 agent」。還不信任就開 100 個，只會得到垃圾 PR。</p></div><div class="nz-card"><span class="nz-eyebrow">codebase = memory</span><p class="nz-card-title">程式碼庫就是 agent 的記憶</p><p class="nz-card-body">agent 照抄它看到的東西。workaround 會像雜草蔓延，所以人要當園丁：拔草、搭支架。</p></div><div class="nz-card"><span class="nz-eyebrow">correction → structure</span><p class="nz-card-title">每次糾正都變成結構</p><p class="nz-card-body">與其每次在 review 裡糾正，不如改成設計、lint 或 skill；同一個錯第二次出現就升級。</p></div><div class="nz-card"><span class="nz-eyebrow">right ≠ good</span><p class="nz-card-title">證據勝過說法，對的不等於好的</p><p class="nz-card-body">驗證是整條線的限制步驟，就像早餐工廠裡最慢的那顆蛋（她借《High Output Management》）。但驗證只保證做到了，不保證快、不保證省。</p></div><div class="nz-card"><span class="nz-eyebrow">intent is the bottleneck</span><p class="nz-card-title">意圖才是瓶頸</p><p class="nz-card-body">模型越強，限制越落在人能不能把意圖講清楚。她從不讓 agent 替她寫文件、推文或 prompt：寫作就是思考。</p></div><div class="nz-card"><span class="nz-eyebrow">code is the spec</span><p class="nz-card-title">不先規劃，用程式碼規劃</p><p class="nz-card-body">她說不相信 planning。能用實驗決定的問題，就先做原型讓結果決定；計畫做完就刪。</p></div><div class="nz-card"><span class="nz-eyebrow">judgment vs. mechanics</span><p class="nz-card-title">判斷交給 LLM，機械交給 CLI</p><p class="nz-card-body">確定性的步驟寫成固定腳本，skill 只是外面一層薄包裝。現寫的腳本會漂移，同一個基準就量不出同樣的結果。</p></div><div class="nz-card"><span class="nz-eyebrow">reasoning > rules</span><p class="nz-card-title">寫成推理，不寫禁令</p><p class="nz-card-body">禁令在沒寫到的情況會失效，推理能讓 agent 自己判斷。她認為模型越強，skill 會壓縮成原則或流程。</p></div><div class="nz-card"><span class="nz-eyebrow">context, not control</span><p class="nz-card-title">人是主廚，不是工廠廠長</p><p class="nz-card-body">她劃掉「software factory」：工廠這個詞不談品質。量大時只能抽樣嚐；多個 agent 犯同一個捷徑，就修廚房。</p></div><div class="nz-card"><span class="nz-eyebrow">verifiable</span><p class="nz-card-title">能驗證，才放手</p><p class="nz-card-body">可驗證性決定能放手多少；她說能驗證，單向門也會變成雙向門。真正難驗證的，她公開說自己沒有答案。</p></div></div>
+</section>
+
+<!-- 03 -->
+<section id="layers">
+  <span class="nz-eyebrow">03 · 防線</span>
+  <h2>力氣先花在最硬的那一層</h2>
+  <p class="lead">每次要糾正 agent，先問最上層擋不擋得住。越往下，越容易被 agent 跳過。</p>
+  <figure><div class="fig"><svg viewBox="0 0 780 270" role="img" aria-label="倒金字塔：力氣依序花在程式碼本身、靜態分析、驗證、文字，人工 review 只抽樣" class=""><path class="f-accent" d="M21.1,12.9 Q300,12.1 581.4,14.1 L530.15,68.1 Q300,66.1 68.85,69.5 Z"/><text class="t-hand t-lg" x="300" y="39" text-anchor="middle">程式碼本身</text><text class="t-sans t-xs muted" x="300" y="58" text-anchor="middle">架構 · API · 資料夾邊界</text><circle class="dot-ok" cx="618" cy="41.0" r="5"/><text class="t-hand t-md" x="632" y="46.0" text-anchor="start">錯的寫不出來</text><path class="f-accent" d="M69.95,76.6 Q300,75.0 530.85,74.9 L483.4,130.1 Q300,131.1 117.0,129.1 Z"/><text class="t-hand t-lg" x="300" y="101" text-anchor="middle">靜態分析</text><text class="t-sans t-xs muted" x="300" y="120" text-anchor="middle">型別 · lint · compiler</text><circle class="dot-ok" cx="618" cy="103.0" r="5"/><text class="t-hand t-md" x="632" y="108.0" text-anchor="start">寫了就報錯</text><path class="f-info" d="M118.5,139.6 Q300,139.4 483.5,139.0 L434.55,191.1 Q300,192.1 165.75,190.5 Z"/><text class="t-hand t-lg" x="300" y="163" text-anchor="middle">驗證</text><text class="t-sans t-xs muted" x="300" y="182" text-anchor="middle">執行期 · 形式化（TLA+、Lean）</text><circle class="dot-info" cx="618" cy="165.0" r="5"/><text class="t-hand t-md" x="632" y="170.0" text-anchor="start">跑了就知道</text><path class="f-warn" d="M164.75,199.3 Q300,199.0 434.35,201.5 L384.8,255.4 Q300,256.0 216.5,253.6 Z"/><text class="t-hand t-lg" x="300" y="225" text-anchor="middle">文字</text><text class="t-sans t-xs muted" x="300" y="244" text-anchor="middle">AGENTS.md · rules · skills</text><circle class="dot-warn" cx="618" cy="227.0" r="5"/><text class="t-hand t-md" x="632" y="232.0" text-anchor="start">可能被跳過</text></svg></div>
+  <figcaption><span class="nz-eyebrow">倒金字塔</span>AI Engineer 演講的版本。她每次分的層數和名稱都不同，不變的是 codebase 在最上層，文字規則和人工 review 偏下層。</figcaption></figure>
+  <h3>規則升級成機制：一個實例</h3>
+  <div class="nz-flow"><div class="nz-node nz-node-start">CLAUDE.md 的規則</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg><div class="nz-node nz-node-key"><code>lint-arch.sh</code> 強制</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg><div class="nz-node nz-node-end">違規輸出附修法與原則路徑</div></div>
+  <p class="fine">她的開源專案 noodle：CLAUDE.md 規定錯誤訊息要描述失敗狀態，<code>lint-arch.sh</code> 再把它強制化，違規時直接印出修法和原則檔路徑。</p>
+  <h3>寫好一條檢查的五件事</h3>
+  <p class="fine">本頁從她在 React Compiler 和 pstack 的做法歸納，她沒列過這張清單。</p>
+  <div class="nz-list"><div class="nz-list-row"><span class="nz-badge nz-badge-info">寫給 agent</span><div class="nz-list-title">錯誤訊息要列出可能情況和各自修法<small>2025-12 她在 React 加了給 agent 讀的 lint 訊息：靜態分析判斷不了時，把三種情況與修法都列出來，讓 agent 先推理再修</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-info">先失敗</span><div class="nz-list-title">新檢查要先在當初那個真實錯誤上報錯<small>沒看過它失敗，就不知道它擋得住</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-info">跳過要回報</span><div class="nz-list-title">可以只跳過那一處，但不准沉默跳過<small>React Compiler 的做法：違規只跳過那個函式，但一定要出診斷</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-info">不准壞</span><div class="nz-list-title">守門工具本身永遠不能 crash<small>lint 遇到看不懂的東西就記 log、照常運作</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-info">要修剪</span><div class="nz-list-title">沒擋到東西的規則就刪<small>她親手刪掉自己加了一年的「沒用到的 opt-out」lint</small></div></div></div>
+</section>
+
+<!-- 04 -->
+<section id="verify">
+  <span class="nz-eyebrow">04 · 驗證</span>
+  <h2>要證據，也要驗證「驗證」本身</h2>
+  <p class="lead">Code review 縮小成看證據：影片、截圖、狀態圖、證明。她說自己大部分 token 花在驗證，但書是：驗證只是近似值。</p>
+  <h3>好的驗證產物要同時做到三件事</h3>
+  <div class="cards cols-3"><div class="nz-card"><span class="nz-eyebrow">條件 1</span><p class="nz-card-title">證明是對的</p><p class="nz-card-body">跑真正的使用者路徑，讀實際的值；寫入要讀回來。</p></div><div class="nz-card"><span class="nz-eyebrow">條件 2</span><p class="nz-card-title">符合原本的意圖</p><p class="nz-card-body">不只是沒有 bug，還要確認 agent 懂了你要什麼。</p></div><div class="nz-card"><span class="nz-eyebrow">條件 3</span><p class="nz-card-title">比整個 PR 好審</p><p class="nz-card-body">UI 交影片或截圖，流程交狀態圖。人看證據，不看 diff。</p></div></div>
+  <h3>什麼算證據</h3>
+  <div class="nz-list"><div class="nz-list-row"><span class="nz-badge nz-badge-bad">不算</span><div class="nz-list-title">能編譯、CI 綠燈、bot 核准、作者說測過了<small>她看過 agent 一口咬定根因，翻開 tool call 才發現它根本沒讀那段程式碼</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-bad">不算</span><div class="nz-list-title">「看，它打開了」的截圖<small>同一段錄影要有觸發動作和穩定的終點狀態</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-warn">有條件</span><div class="nz-list-title"><code>eval</code> 只能事後讀狀態<small>不能拿來直接呼叫內部 handler 當主要證明</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-warn">有條件</span><div class="nz-list-title">mock 只有放在正式邊界後面才算<small>到不了的路徑要點名原因，改測最近的真實路徑</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-ok">算</span><div class="nz-list-title">先跑 <code>doctor</code>，再像使用者一樣操作<small>確認跑的不是舊 bundle；驗副作用：DOM、剪貼簿、網路 log、檔案</small></div></div></div>
+  <h3>驗證 skill 也要先被弄壞一次</h3>
+  <figure><div class="fig narrow"><svg viewBox="0 0 660 126" role="img" aria-label="驗證 skill 抓到故意弄壞處的比例：只證明會跑時 12 處抓到 5 處，先確認會 FAIL 後 16 處全抓到" class=""><text class="t-sans t-sm" x="0" y="36" text-anchor="start">只證明會跑</text><path class="f-sunk" d="M206.3,15.3 Q380.0,14.8 554.6,13.1 Q558.5,12.8 559.6,18.7 Q561.5,30.0 560.2,40.4 Q560.4,46.6 554.0,44.4 Q380.0,47.3 206.8,46.0 Q200.1,46.5 198.6,40.8 Q198.9,30.0 198.6,19.2 Q200.7,13.1 206.8,15.5Z"/><path class="f-bad" d="M206.0,13.6 Q275.0,13.9 344.6,14.9 Q350.4,14.5 348.6,18.9 Q348.9,30.0 350.8,39.4 Q350.2,44.4 342.6,45.3 Q275.0,46.8 206.6,46.6 Q199.3,46.1 199.9,39.9 Q198.3,30.0 201.3,19.0 Q201.5,15.4 204.5,13.9Z"/><text class="t-mono t-sm" x="574" y="36" text-anchor="start">抓到 5/12</text><text class="t-sans t-sm" x="0" y="86" text-anchor="start">先弄壞、確認會 FAIL</text><path class="f-sunk" d="M207.0,65.5 Q380.0,63.8 553.3,63.1 Q561.4,63.1 560.3,68.9 Q560.1,80.0 561.4,88.8 Q561.0,96.0 555.2,96.7 Q380.0,94.8 207.3,96.0 Q198.5,94.4 200.0,89.8 Q199.1,80.0 198.9,69.5 Q199.4,65.1 204.4,64.8Z"/><path class="f-ok" d="M207.1,62.8 Q380.0,65.9 554.7,65.3 Q559.3,63.6 559.7,71.6 Q560.4,80.0 559.6,89.8 Q559.3,94.6 552.7,97.1 Q380.0,95.1 207.4,95.2 Q199.3,96.0 199.0,89.6 Q202.0,80.0 201.2,71.0 Q200.4,65.3 207.4,64.2Z"/><text class="t-mono t-sm" x="574" y="86" text-anchor="start">抓到 16/16</text></svg></div>
+  <figcaption><span class="nz-eyebrow">社群實測</span>有人在 5 個 repo 故意弄壞 12 處，只證明「會跑」的驗證 skill 放過了 7 處。改成每個功能先確認會 FAIL 後，另一輪 16 處全抓到（issue 沒說明兩輪是否同一批）。（cursor/plugins issue #1271，二手）</figcaption></figure>
+  <h3>形式化驗證：從狀態圖到可重跑的證明</h3>
+  <div class="nz-flow"><div class="nz-node nz-node-start">statechart</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg><div class="nz-node">規則寫成 TLA+ INVARIANT</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg><div class="nz-node nz-node-key">TLC 找最短反例</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg><div class="nz-node">畫成 PM 看得懂的圖</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg><div class="nz-node nz-node-end">拿真程式重播</div></div>
+  <div class="nz-list"><div class="nz-list-row"><span class="nz-badge nz-badge-info">TLA+</span><div class="nz-list-title">跨裝置通知流程<small>model checking；規則不准為了過關放寬</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-info">Lean</span><div class="nz-list-title">自製虛擬化列表不閃爍、不抖動<small>定理證明</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-info">Bombadil</span><div class="nz-list-title">UI 的 property-based testing<small>Antithesis 出的函式庫，已抓到 UI bug</small></div></div></div>
+  <p class="fine">pstack 的 <code>statechart</code> 不是畫圖工具，是 TLA+ 檢查器加上讀者看得懂的圖。她說形式化方法還在實驗，不是銀彈，只是多一層。</p>
+</section>
+
+<!-- 05 -->
+<section id="letgo">
+  <span class="nz-eyebrow">05 · 放手</span>
+  <h2>放手多少，看能不能驗證</h2>
+  <figure><div class="fig"><svg viewBox="0 0 760 430" role="img" aria-label="放手的程度看兩個軸：可驗證性與可逆性" class=""><path class="f-info" d="M121.1,19.1 Q260.0,18.7 397.1,20.4 Q411.3,21.1 409.9,32.5 Q411.3,105.0 408.7,178.5 Q411.3,190.9 398.8,189.9 Q260.0,188.6 122.9,189.5 Q111.0,191.5 109.7,177.7 Q112.0,105.0 110.7,30.9 Q108.8,18.9 123.3,21.0Z"/><text class="t-hand t-lg" x="260.0" y="101.0" text-anchor="middle">agent 準備，人簽核</text><text class="t-sans t-sm muted" x="260.0" y="127.0" text-anchor="middle">部署 · 資料遷移 · 刪資料</text><path class="f-ok" d="M432.9,21.0 Q572.0,22.1 710.5,19.5 Q722.2,18.8 720.4,33.5 Q722.7,105.0 722.1,179.4 Q721.8,191.2 711.0,189.1 Q572.0,188.9 433.3,189.2 Q422.3,189.2 421.7,176.8 Q423.8,105.0 421.5,31.9 Q422.3,21.3 433.7,21.3Z"/><text class="t-hand t-lg" x="572.0" y="101.0" text-anchor="middle">全自動，自動 merge</text><text class="t-sans t-sm muted" x="572.0" y="127.0" text-anchor="middle">修 bug · 效能 · 維護</text><path class="f-bad" d="M122.0,202.1 Q260.0,202.1 396.5,201.8 Q409.0,200.4 411.0,213.0 Q409.9,287.0 410.7,360.2 Q409.4,372.1 398.2,372.9 Q260.0,370.3 122.2,371.2 Q109.3,372.9 110.0,360.2 Q111.1,287.0 111.3,213.8 Q110.4,202.0 122.0,202.6Z"/><text class="t-hand t-lg" x="260.0" y="283.0" text-anchor="middle">她說還沒有答案</text><text class="t-sans t-sm muted" x="260.0" y="309.0" text-anchor="middle">難驗證的單向門</text><path class="f-warn" d="M433.8,202.1 Q572.0,201.9 711.4,202.6 Q723.2,203.4 721.2,214.2 Q724.0,287.0 723.1,358.8 Q720.8,371.8 708.6,371.2 Q572.0,370.1 434.5,372.9 Q423.3,370.9 422.7,360.5 Q420.4,287.0 423.2,215.5 Q421.1,203.4 433.7,202.0Z"/><text class="t-hand t-lg" x="572.0" y="283.0" text-anchor="middle">原型 + 內部 dogfood</text><text class="t-sans t-sm muted" x="572.0" y="309.0" text-anchor="middle">影響日常介面的改動</text><path class="arr" d="M110,390 Q420.0,392.0 730,390 M721.0,395.0 L730,390 L721.0,385.0"/><text class="t-hand t-md" x="416" y="418" text-anchor="middle">可逆性 →</text><text class="t-sans t-xs muted" x="114" y="418" text-anchor="start">單向門</text><text class="t-sans t-xs muted" x="718" y="418" text-anchor="end">隨時能撤回</text><path class="arr" d="M80,370 Q82.0,195.0 80,20 M85.0,29.0 L80,20 L75.0,29.0"/><text class="t-hand t-md" x="40" y="196" text-anchor="middle" transform="rotate(-90 40 196)">可驗證性 →</text></svg></div>
+  <figcaption><span class="nz-eyebrow">本頁整理的框架</span>不是她的原話。她只用可驗證性回答「能放手多少」；各格內容來自她和團隊在不同場合的說法。</figcaption></figure>
+  <h3>信任要一步步建：她教 bot 的四步</h3>
+  <div class="nz-flow"><div class="nz-node nz-node-start">在旁邊看、糾正</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg><div class="nz-node">對話結束寫成 skill</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg><div class="nz-node nz-node-key">磨到一次就對</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg><div class="nz-node nz-node-end">才設 routine</div></div>
+  <p class="fine">她把「讓 agent 自己 merge 自己的 PR」當成目標往回推，說這是她到每月 2,000 PR 的關鍵。</p>
+  <h3>建一條可信 loop 的五件事</h3>
+  <div class="nz-list"><div class="nz-list-row"><span class="nz-badge">1</span><div class="nz-list-title">先手做一次<small>知道好的結果長什麼樣</small></div></div><div class="nz-list-row"><span class="nz-badge">2</span><div class="nz-list-title">給 agent 你用的工具和訊號<small>DevTools、trace、heap snapshot，不是只給 prompt</small></div></div><div class="nz-list-row"><span class="nz-badge">3</span><div class="nz-list-title">每個階段都要證明自己，達不到就停<small>失敗在越便宜的階段被擋下越好</small></div></div><div class="nz-list-row"><span class="nz-badge">4</span><div class="nz-list-title">讀對話紀錄，把反覆的失敗變成工具、skill 或 eval</div></div><div class="nz-list-row"><span class="nz-badge">5</span><div class="nz-list-title">loop 贏得信任後才讓它自己跑</div></div></div>
+  <p class="fine">出自她 2026-06 的長文〈Loops You Can Trust〉。</p>
+  <div class="nz-callout"><span class="nz-callout-icon">!</span><div><b>不要跳級。</b>她花了約六個月才從「盯著 1 到 5 個對話」走到每月數千個 PR。信任不夠就自動化，只會更快地產出 slop，外加一大筆 token 帳單。信任曲線的五個階段見<a href="https://claude.ai/artifact/LjRh5tAMW7QjMaqXvKC77f">系統頁</a>。</div></div>
+</section>
+
+<!-- 06 -->
+<section id="daily">
+  <span class="nz-eyebrow">06 · 日常</span>
+  <h2>她怎麼下指令、怎麼派工</h2>
+  <div class="cards cols-2"><div class="nz-card"><span class="nz-eyebrow">寫進去</span><p class="nz-card-title">好 prompt 最多五件事</p><p class="nz-card-body">目標、能判過或不過的完成檢查、要看的證據、你已經知道的、真正的限制。</p></div><div class="nz-card"><span class="nz-eyebrow">不寫</span><p class="nz-card-title">刻意不寫兩件事</p><p class="nz-card-body">怎麼做，以及你對原因的猜測。猜測會讓 agent 只在你指的地方找。</p></div><div class="nz-card"><span class="nz-eyebrow">先重述</span><p class="nz-card-title">in your own words</p><p class="nz-card-body">先叫 agent 用自己的話重述問題，再開始動手。控制詞：「new task」「don't change any code yet」。</p></div><div class="nz-card"><span class="nz-eyebrow">終點</span><p class="nz-card-title">時間不是結束條件</p><p class="nz-card-body">給一個會過或不會過的條件，不要給「做四小時」。</p></div></div>
+  <h3>一個任務的形狀</h3>
+  <div class="nz-flow"><div class="nz-node nz-node-start">重述問題</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg><div class="nz-node">原型回答開放問題</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg><div class="nz-node nz-node-key">小單位、可驗證</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg><div class="nz-node">附證據開 PR</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg><div class="nz-node nz-node-end">非作者驗證</div></div>
+  <h3>工作習慣</h3>
+  <div class="nz-list"><div class="nz-list-row"><span class="nz-badge">PR</span><div class="nz-list-title">50–1,000 行的 atomic PR<small>git 歷史就是下一個 agent 的上下文</small></div></div><div class="nz-list-row"><span class="nz-badge">派工</span><div class="nz-list-title">coordinator 自己切 issue，相關的 bug 打包給同一個 agent<small>一 bug 一 agent 會看不到共同的根因</small></div></div><div class="nz-list-row"><span class="nz-badge">清理</span><div class="nz-list-title">sweep agent 先把反模式寫進文件，不急著修<small>她每隔幾天讀一次，找系統性的修法</small></div></div><div class="nz-list-row"><span class="nz-badge">後座駕駛</span><div class="nz-list-title">讀 tool call 和 thinking block，追問「你為什麼不這樣做」<small>一種失敗補一個 skill：pstack 就是這樣長出來的</small></div></div><div class="nz-list-row"><span class="nz-badge">起步</span><div class="nz-list-title">從零開始：不裝 plugin、不寫 AGENTS.md，先 prompt 並觀察失敗<small>重複出現才寫成 skill；更好是寫 lint 或改結構讓錯誤寫不出來（2026-06 貼文）</small></div></div><div class="nz-list-row"><span class="nz-badge">規劃</span><div class="nz-list-title">不用 plan mode<small>能用原型回答的問題就做原型</small></div></div><div class="nz-list-row"><span class="nz-badge">隔離</span><div class="nz-list-title">每個任務獨立的工作區；絕不 <code>cd</code> 進 worktree<small>noodle（2026-02）的規則：worktree 一刪 shell 就死，一律用絕對路徑；2026-08 她說未來是雲端 agent</small></div></div><div class="nz-list-row"><span class="nz-badge">CLI</span><div class="nz-list-title">好的 agent CLI 有六個特性<small>deep module、<code>--dry-run</code>、子指令逐層揭露、錯誤訊息說下一步、詳細 help、JSON 輸出</small></div></div></div>
+</section>
+
+<!-- 07 -->
+<section id="outer">
+  <span class="nz-eyebrow">07 · 外迴圈</span>
+  <h2>訊號自己進來，修好自己合併</h2>
+  <p class="lead">她說 factory 式的自動化只用在維護、效能、修 bug。下面兩條流程，一條會自動 merge，一條只開 draft。</p>
+  <h3>Grok Bot：每次 release 自動 fuzz</h3>
+  <div class="nz-flow"><div class="nz-node nz-node-start">每次 release</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg><div class="nz-node">fuzz 整個 app</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg><div class="nz-node nz-node-key">每個 bug 開修正 PR</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg><div class="nz-node nz-node-end">自動 merge</div></div>
+  <p class="fine">AI Engineer 演講：codebase 好到 PR 預設就是好的，才敢自動 merge。</p>
+  <h3>Benny：只開 draft，不 merge</h3>
+  <div class="nz-flow"><div class="nz-node nz-node-start">Slack 回報</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg><div class="nz-node">triage 判斷是不是 bug</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg><div class="nz-node">雲端重現兩次</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg><div class="nz-node nz-node-key">人可否決</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg><div class="nz-node nz-node-end">最小修復、draft PR</div></div>
+  <p class="fine">她在 Cursor 用 Automations 接成的四站流程，修之前 thread 留給人更正或否決；已經有人開 PR 時，改去驗那個 PR。pstack 裡的 Benny automation pack 目前休眠。它的安全設計：</p>
+  <div class="nz-list"><div class="nz-list-row"><span class="nz-badge nz-badge-ok">每段</span><div class="nz-list-title">每個階段都能叫停<small>停下來也是有用的結果</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-ok">每段</span><div class="nz-list-title">每個階段都要交證據<small>截圖、影片、前後對照，讓人不讀程式碼也能先確認修對了東西</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-warn">fail closed</span><div class="nz-list-title">出疑慮就停，不寫<small>沒重現就不修；已經有 PR 就只驗證</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-warn">權限</span><div class="nz-list-title">只有 coordinator 能發文，子代理唯讀<small>Slack 座標凍結</small></div></div></div>
+  <h3>Bot 是隊友，coding agent 是工具</h3>
+  <div class="nz-flow"><div class="nz-node nz-node-start">你</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg><div class="nz-node">主管 bot（只拆工作）</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg><div class="nz-node nz-node-key">依功能分工的工程 bot</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg><div class="nz-node nz-node-end">雲端 agent</div></div>
+  <p class="fine">她有超過 10 個各管一塊的 chief of staff bot，還有一個設計 bot 的 bot（Dr Eggbot）定期審查其他 bot。她用一條約 200 則訊息的 Slack 串做完一個功能，沒開編輯器、沒讀 PR，只看影片和截圖。</p>
+  <h3>給非工程師的版本：教 bot 自動化</h3>
+  <div class="nz-flow"><div class="nz-node nz-node-start">先講目標</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg><div class="nz-node">口述你的流程</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg><div class="nz-node">叫它先重述、不執行</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg><div class="nz-node nz-node-key">給它自己拿回饋的資料</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg><div class="nz-node nz-node-end">用 routine 觸發</div></div>
+  <p class="fine">出自 2026-11 長文〈Automate Anything with Grok Bot〉。常見錯誤是把流程當目標：目標不是填表或寄信。</p>
+</section>
+
+<!-- 08 -->
+<section id="pstack">
+  <span class="nz-eyebrow">08 · pstack</span>
+  <h2>pstack 現況：越改越短</h2>
+  <div class="stats">
+    <div class="nz-card stat"><div class="stat-num">0.15.43</div><div class="stat-label">版本（2026-11-16）</div></div>
+    <div class="nz-card stat"><div class="stat-num">22</div><div class="stat-label">本 playbook</div></div>
+    <div class="nz-card stat"><div class="stat-num">24</div><div class="stat-label">條原則</div></div>
+    <div class="nz-card stat"><div class="stat-num">165 / 171</div><div class="stat-label">個 commit 出自她手</div></div>
+  </div>
+  <h3>從哪裡長出來（本頁整理）</h3>
+  <div class="nz-flow"><div class="nz-node nz-node-start">noodle、brainmaxxing</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg><div class="nz-node">how plugin</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg><div class="nz-node nz-node-key">pstack 開源</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg><div class="nz-node nz-node-end">支援 Claude Code</div></div>
+  <p class="fine">時間先後：2026-02 noodle、brainmaxxing → 04 how → 05-22 pstack 進 cursor/plugins → 10-16 支援 Claude Code。她說 pstack 從一個 side project 長出來，開源版是 Cursor 內部 skill 樹的移植；brainmaxxing 和 how 的承接關係是本頁依時間推論。</p>
+  <h3>最近的方向</h3>
+  <div class="nz-list"><div class="nz-list-row"><span class="nz-badge nz-badge-ok">刪減</span><div class="nz-list-title">一直在砍文字，刪之前先比對行為<small>保留與否只看一件事：沒有這段，agent 會不會做不到</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-ok">傳遞</span><div class="nz-list-title"><code>worker.md</code>：kickoff 的標準就是全部標準<small>子代理不准自己加 gate、不准問人；沒寫標準時，「不比 base 差、過自己的測試」就算合格</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-ok">證據</span><div class="nz-list-title">每個主張要有證據，或標上 measured、inferred、guess<small>能自己跑的檢查不准丟給人</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-ok">引用</span><div class="nz-list-title">引用原則時要寫出它改變了哪個決策<small>而且只能引用讀過全文的原則</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-ok">自測</span><div class="nz-list-title">改 pstack 本身也要過 eval<small>只有達成目標的改動才 land</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-info">模型</span><div class="nz-list-title">Opus 優先，推理強度上限 xhigh<small>最強的 Fable 只在你點名、或 Opus 失敗兩次時上場；「很難」不是理由</small></div></div></div>
+  <h3>學到一課之後，放到哪裡</h3>
+  <div class="nz-list"><div class="nz-list-row"><span class="nz-badge nz-badge-ok">先問</span><div class="nz-list-title">能變成結構嗎？<small>能就寫成 lint、hook 或型別，不寫筆記</small></div></div><div class="nz-list-row"><span class="nz-badge">一次性</span><div class="nz-list-title">寫進 brain 筆記</div></div><div class="nz-list-row"><span class="nz-badge nz-badge-warn">反覆出現</span><div class="nz-list-title">寫成 skill，或升級成 lint</div></div><div class="nz-list-row"><span class="nz-badge nz-badge-info">系統性</span><div class="nz-list-title">寫成 principle<small>meditate 另規定新原則要 2 則以上的證據；「我會記住」不算數</small></div></div></div>
+  <p class="fine">出自她更早的 brainmaxxing（2026-02）裡 reflect 和 meditate 的規則。</p>
+  <details class="more">
+    <summary>24 條原則，各一句話</summary>
+    <div class="tw"><table><tbody><tr class="grp"><td colspan="2">核心（10）</td></tr><tr><td><code>Laziness Protocol</code></td><td>同一個決策只放在一個地方，做能解決問題的最小改動</td></tr><tr><td><code>Foundational Thinking</code></td><td>先把資料形狀弄對，下游程式碼就顯而易見</td></tr><tr><td><code>Redesign from First Principles</code></td><td>新需求別外掛，當成第一天就有它來重新設計</td></tr><tr><td><code>Attack the Premise</code></td><td>兩次修法卡在同一關，就懷疑共同的前提</td></tr><tr><td><code>Subtract Before You Add</code></td><td>先刪再建，留下的設計要比接手時簡單</td></tr><tr><td><code>Minimize Reader Load</code></td><td>少一層轉發、少一份隱藏狀態</td></tr><tr><td><code>Outcome-Oriented Execution</code></td><td>終點正確優先，可逆的中間破損可以接受</td></tr><tr><td><code>Experience First</code></td><td>實作方便和使用者愉悅衝突時，選愉悅</td></tr><tr><td><code>Exhaust the Design Space</code></td><td>沒有前例時，先做 2–3 個原型並排比較</td></tr><tr><td><code>Build the Lever</code></td><td>不瑣碎的工作就做成工具，工具本身可重跑</td></tr><tr class="grp"><td colspan="2">架構（6）</td></tr><tr><td><code>Model the Domain</code></td><td>用資料結構表達領域，讓非法狀態表達不出來</td></tr><tr><td><code>Boundary Discipline</code></td><td>驗證集中在系統邊界，內部信任型別</td></tr><tr><td><code>Type System Discipline</code></td><td>讓 compiler 拒絕不可能的狀態</td></tr><tr><td><code>Make Operations Idempotent</code></td><td>跑幾次、停在哪都收斂到正確狀態</td></tr><tr><td><code>Migrate Callers Then Delete Legacy APIs</code></td><td>同一波遷完呼叫者並刪舊 API（限沒有外部使用者）</td></tr><tr><td><code>Separate Before Serializing Shared State</code></td><td>先消除共享，真的需要單一寫入者才序列化</td></tr><tr class="grp"><td colspan="2">驗證（5）</td></tr><tr><td><code>Prove It Works</code></td><td>直接查真的東西，代理指標不算</td></tr><tr><td><code>Fix Root Causes</code></td><td>修第一個做錯事的地方，不修症狀</td></tr><tr><td><code>Sequence Work into Verifiable Units</code></td><td>小單位，每步停在可檢查的狀態</td></tr><tr><td><code>Test Behavior, Not Implementation</code></td><td>把行為弄壞測試還過，測試就沒用</td></tr><tr><td><code>Explain the Number</code></td><td>先找出限制數字的因素，再相信它</td></tr><tr class="grp"><td colspan="2">委派與後設（3）</td></tr><tr><td><code>Guard the Context Window</code></td><td>大量閱讀交給子代理，主線只留摘要</td></tr><tr><td><code>Never Block on the Human</code></td><td>可逆的先做再呈現，不可逆的才問</td></tr><tr><td><code>Encode Lessons in Structure</code></td><td>第二次寫同一條指示，就改成 lint 或腳本</td></tr></tbody></table></div>
+  </details>
+</section>
+
+<!-- 09 -->
+<section id="shifts">
+  <span class="nz-eyebrow">09 · 演變</span>
+  <h2>她的做法變化</h2>
+  <p class="lead">她的做法變得很快，引用時要附日期。每列標出證據等級：一手、二手整理，或本頁拿新舊文件對照的推論。</p>
+  <div class="nz-list"><div class="nz-list-row"><span class="nz-badge nz-badge-ok">一手</span><div class="nz-list-title">多模型對抗式 review：推薦 skill → 大多浪費 token<small>2026-05 長文還推薦；11-03 在 X 說大多浪費 token；Lightcone 上說是淡化不是廢除，理由是 reviewer 會 overfit、不懂產品走向</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-ok">一手</span><div class="nz-list-title">skill：寫實作細節 → 只留流程<small>去年的 skill 寫怎麼做；現在刪到只剩流程，確定性的部分交給 CLI</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-ok">一手</span><div class="nz-list-title">問的問題變了<small>幾個月前問能同時跑幾個 agent；現在問 loop 產出什麼證據、哪裡能快速失敗</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-ok">一手</span><div class="nz-list-title">原則：禁令 → 推理；skill 越改越短<small>2026-10-14 的 commit 把四條原則改寫成推理；09 月起每輪都在刪文字</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-ok">一手</span><div class="nz-list-title">本機 worktree → 雲端 agent<small>2026-08-13 在 X 說 worktree 已死，未來是雲端 agent</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-ok">一手</span><div class="nz-list-title">模型分工一直換<small>Opus 跑前端、Codex 跑系統 → Grok 當快速探索 → pstack 現在 Opus 優先；筆記不要寫死模型</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-ok">一手</span><div class="nz-list-title">形式化方法：開放問題 → 已在用<small>9 月演講說形式驗證很少人做得到、仍是開放問題；10 月 pstack 加入 formal verification skill；11 月團隊已用 TLA+、Lean、Bombadil</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-ok">一手</span><div class="nz-list-title">廚房比喻改了三版<small>08 主廚帶二廚 → 09 米其林廚房、劃掉 software factory → 10 家庭廚師有了二廚，主廚是廚房的 CEO</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-warn">對照推論</span><div class="nz-list-title">向後相容：新舊共存 → 一波刪光<small>2016 年用 proxy 讓新舊 API 共存；現在的原則不留相容層，限沒有外部使用者。她沒說過自己改了看法</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-warn">對照推論</span><div class="nz-list-title">2015 年說體驗設計很難自動化<small>和現況不符；她本人沒有回應過</small></div></div></div>
+</section>
+
+<!-- 10 -->
+<section id="numbers">
+  <span class="nz-eyebrow">10 · 數字與爭議</span>
+  <h2>數字一直在變，外界的質疑也很具體</h2>
+  <figure><div class="fig"><svg viewBox="0 0 760 300" role="img" aria-label="她本人每月合併 PR 數的各種說法，從 2026-07 約 1,000 到 2026-11 同事估計約 4,000" class=""><path class="grid" d="M60,192 L760,192"/><text class="t-mono t-xs muted" x="54" y="196.5" text-anchor="end">1,000</text><path class="grid" d="M60,145 L760,145"/><text class="t-mono t-xs muted" x="54" y="149.0" text-anchor="end">2,000</text><path class="grid" d="M60,98 L760,98"/><text class="t-mono t-xs muted" x="54" y="101.5" text-anchor="end">3,000</text><path class="grid" d="M60,50 L760,50"/><text class="t-mono t-xs muted" x="54" y="54.0" text-anchor="end">4,000</text><path class="f-accent" d="M77.6,193.6 Q116.0,191.0 155.8,192.5 Q161.5,191.5 161.4,199.2 Q159.9,216.25 162.2,233.8 Q160.5,239.5 156.4,240.0 Q116.0,238.1 77.6,240.9 Q71.5,238.7 69.2,232.5 Q71.2,216.25 69.3,197.3 Q69.8,193.8 77.0,191.7Z"/><text class="t-hand t-md" x="116.0" y="182.5" text-anchor="middle">~1,000</text><text class="t-mono t-xs muted" x="116.0" y="262" text-anchor="middle">2026-08</text><text class="t-sans t-xs muted" x="116.0" y="282" text-anchor="middle">工作坊</text><path class="f-accent" d="M212.9,146.3 Q254.0,145.3 294.6,143.7 Q298.6,145.6 299.8,149.6 Q301.9,192.5 300.4,235.0 Q298.7,241.1 292.6,241.2 Q254.0,239.8 213.5,240.2 Q209.4,239.3 206.8,234.1 Q206.8,192.5 206.8,149.9 Q206.6,144.0 213.4,144.4Z"/><text class="t-hand t-md" x="254.0" y="135.0" text-anchor="middle">~2,000</text><text class="t-mono t-xs muted" x="254.0" y="262" text-anchor="middle">2026-09</text><text class="t-sans t-xs muted" x="254.0" y="282" text-anchor="middle">影片口述</text><path class="f-accent" d="M352.8,120.55 Q392.0,121.25 431.0,120.75 Q436.5,120.45 436.4,127.95 Q438.2,180.625 437.0,233.9 Q439.4,238.7 433.0,239.8 Q392.0,240.0 353.1,239.7 Q346.0,240.6 347.5,233.5 Q347.5,180.625 346.7,127.65 Q345.7,120.75 350.6,120.05Z"/><text class="t-hand t-md" x="392.0" y="111.25" text-anchor="middle">~2,500</text><text class="t-mono t-xs muted" x="392.0" y="262" text-anchor="middle">2026-09</text><text class="t-sans t-xs muted" x="392.0" y="282" text-anchor="middle">貼文標題</text><path class="f-accent" d="M488.6,98.3 Q530.0,96.4 568.9,96.2 Q577.1,98.7 576.5,102.8 Q574.9,168.75 575.3,233.9 Q574.9,239.8 569.2,241.5 Q530.0,242.1 490.2,239.2 Q485.5,239.4 483.5,232.4 Q483.5,168.75 483.9,103.5 Q483.0,97.5 488.4,96.7Z"/><text class="t-hand t-md" x="530.0" y="87.5" text-anchor="middle">~3,000</text><text class="t-mono t-xs muted" x="530.0" y="262" text-anchor="middle">2026-11</text><text class="t-sans t-xs muted" x="530.0" y="282" text-anchor="middle">AIE 演講</text><path class="f-dash" d="M626.7,49.7 Q668.0,48.0 706.5,49.4 Q713.1,50.3 714.1,56.8 Q714.7,145.0 714.7,235.2 Q713.6,239.4 709.6,238.9 Q668.0,241.0 628.5,238.5 Q623.1,241.3 622.4,234.7 Q623.4,145.0 620.8,56.1 Q622.0,51.1 629.0,51.0Z"/><text class="t-hand t-md" x="668.0" y="40.0" text-anchor="middle">~4,000</text><text class="t-mono t-xs muted" x="668.0" y="262" text-anchor="middle">2026-11</text><text class="t-sans t-xs muted" x="668.0" y="282" text-anchor="middle">同事估計</text></svg></div>
+  <figcaption><span class="nz-eyebrow">她本人的月 PR 數</span>橫軸是說出數字的月份，多半指前一個月；虛線是同事 Roman 在 Lightcone 的說法，她自己沒說過 4,000。團隊在 2026-10 約 11,000 個 PR、revert 約 0.5%，都是自述，沒有獨立稽核。</figcaption></figure>
+  <h3>質疑與回應</h3>
+  <div class="cards cols-2"><div class="nz-card"><span class="nz-eyebrow">外界質疑</span><p class="nz-card-title">數字無法查證，而且一次比一次大</p><p class="nz-card-body">PR 數從 1,000 長到約 4,000；0.5% revert 沒有基準，也沒有定義。</p></div><div class="nz-card"><span class="nz-eyebrow">她先前說過 · 2026-09 演講</span><p class="nz-card-title">PR 數從來不是目標</p><p class="nz-card-body">多半是重構與清理，不是新功能。她勸大家不要照抄，要自己建驗證。</p></div><div class="nz-card"><span class="nz-eyebrow">外界質疑</span><p class="nz-card-title">token 帳單只有 AI lab 付得起</p><p class="nz-card-body">她自述一天約 15B token；外界估算每月成本從 10 萬到 1,100 萬美元都有。</p></div><div class="nz-card"><span class="nz-eyebrow">她先前說過 · 2026-08 工作坊</span><p class="nz-card-title">承認 token 無上限，當成前期投資</p><p class="nz-card-body">用請人的成本算 ROI；約束好的 codebase，弱一點的模型也寫得好。查不到她對成本爭議的直接回應。</p></div></div>
+  <h3>實際採用的人怎麼說</h3>
+  <div class="nz-list"><div class="nz-list-row"><span class="nz-badge nz-badge-warn">成本</span><div class="nz-list-title">同一件事時間大約翻倍，但抓到 agent 的 3 個假宣稱<small>單人單專案的實測（二手）</small></div></div><div class="nz-list-row"><span class="nz-badge">挑著用</span><div class="nz-list-title">HN 留言裡最常被單獨推薦：<code>/unslop</code>、<code>interrogate</code>、<code>blast-radius</code><small>也有人回報 <code>poteto-mode</code> 能端到端做完功能</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-bad">Claude Code</span><div class="nz-list-title">pstack 的必讀規則在 Claude Code 幾乎沒被讀<small>18 次執行中 adapter 只讀 1 次、原則檔 0 次。另一組 72 次實驗（其他 harness、Sonnet）：一句話補丁讀到 7 次；每本 playbook 開頭列必讀原則並砍短 skill 本體後到 68 次</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-bad">Claude Code</span><div class="nz-list-title">0.15.43 指定給子代理的模型在 Claude Code 不被接受<small>子代理會默默退回較舊的 Opus；社群已提修正 PR，還沒合併（issue #1270）</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-bad">Claude Code</span><div class="nz-list-title">跨模型 review 會悄悄變成全部跑 Claude<small>她在 noodle（2026-02）的做法是呼叫對方廠商的 CLI（<code>codex exec</code>、<code>claude -p</code>），不用自家子 agent</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-bad">操作雷</span><div class="nz-list-title"><code>worktree-cleanup</code> 會刪掉未追蹤的檔案；<code>watch-pr</code> 曾把不能 merge 的 PR 回報為 ready<small>GitHub issue 回報</small></div></div></div>
+  <h3>她自己承認的限制</h3>
+  <div class="nz-list"><div class="nz-list-row"><span class="nz-badge">token</span><div class="nz-list-title">她在 token 預設無上限的環境<small>她自己說這不典型</small></div></div><div class="nz-list-row"><span class="nz-badge">情緒</span><div class="nz-list-title">第一晚開 autopilot 自動 merge 很害怕<small>信任是一步步建立的</small></div></div><div class="nz-list-row"><span class="nz-badge">領域</span><div class="nz-list-title">主持人問到資料遺失這類單向門，她說自己沒有答案<small>只能處理可程式驗證的部分</small></div></div><div class="nz-list-row"><span class="nz-badge">人</span><div class="nz-list-title">基礎設施、資料庫、部署仍要人參與<small>團隊規則：影響日常介面的改動要先拿到內部 PMF（Lightcone，同事 Roman 說）</small></div></div></div>
+</section>
+
+<!-- 11 -->
+<section id="fixes">
+  <span class="nz-eyebrow">11 · 對齊</span>
+  <h2>三份既有成品要對齊的地方</h2>
+  <p class="lead">這次研究查到的現況，和三份深入頁寫的不同之處。</p>
+  <div class="nz-list"><div class="nz-list-row"><span class="nz-badge nz-badge-warn">系統頁</span><div class="nz-list-title">playbook 現在是 22 本，不是 12 本<small>數量歷史 7 → 14 → 15 → 16 → 18 → 22 → 23 → 22（pstack 0.15.43）</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-warn">系統頁</span><div class="nz-list-title"><code>interrogate</code> 不再是標準流程<small>只留給有爭議的設計</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-warn">系統頁</span><div class="nz-list-title"><code>deslop</code>、<code>control-cli</code>、<code>control-ui</code> 不是她寫的<small>作者是 Cursor 的 Eric Zakariasson，放在 cursor-team-kit</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-warn">系統頁</span><div class="nz-list-title">「2,500 PR」那場演講原名是「2,000 PRs」<small>Compile London 官方議程與影片口述都是約 2,000；2,500 是 X 貼文標題，10 月 Pocock 直播也說 2,500</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-warn">slop 頁</span><div class="nz-list-title">70% 是她引用 Cindy 推文的數字，不是她的<small>她說自己「大部分」token 花在驗證（演講 12:06）</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-warn">slop 頁</span><div class="nz-list-title">review 3 → 300 個 PR 沒有時間單位<small>她沒說「每天」</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-warn">先深後快</span><div class="nz-list-title">在 Claude Code 上要另外處理兩件事<small>必讀規則要嵌進流程本身；跨模型審查要真的呼叫別家 CLI</small></div></div><div class="nz-list-row"><span class="nz-badge">三份共同</span><div class="nz-list-title">防線沒有固定的層數<small>她每次分 4 或 5 層、名稱也不同；不變的是 codebase 在最上層，文字規則與人工 review 偏下層</small></div></div></div>
+</section>
+
+<!-- sources -->
+<section id="sources" class="src">
+  <span class="nz-eyebrow">參考資料</span>
+  <h2>來源與追蹤清單</h2>
+  
+  <h3>她本人</h3>
+  <ul>
+    <li><a href="https://github.com/cursor/plugins/tree/main/pstack">pstack 原始碼（cursor/plugins）</a> <small>· 0.15.43 · README、poteto-mode、24 條原則、22 本 playbook、git log</small></li>
+    <li><a href="https://youmind.com/landing/x-viral-articles/how-i-use-cursor-pstack">How I Use Cursor（X 長文轉載）</a> <small>· 2026-05-25</small></li>
+    <li><a href="https://x.com/poteto/article/2069824386283319343">Loops You Can Trust（X 長文）</a> <small>· 2026-06-25</small></li>
+    <li><a href="https://x.com/poteto/status/2123159537016533493">Automate Anything with Grok Bot（X 長文）</a> <small>· 2026-11-19</small></li>
+    <li><a href="https://x.com/poteto/status/2102050467505430555">「上個月 2,500 個 PR」X 影片</a> <small>· 2026-09-21</small></li>
+    <li><a href="https://archive.codenewsletter.ai/2094457600259842065">The Complete Guide to pstack Pt. 1</a>、<a href="https://archive.codenewsletter.ai/2097732320606507506">Pt. 2</a> <small>· 2026-08-31、09-09 · 存檔</small></li>
+    <li><a href="https://archive.codenewsletter.ai/2111133080526495985">信任 agent 的倒金字塔與提示詞（X）</a> <small>· 2026-10-16 · 存檔</small></li>
+    <li><a href="https://archive.codenewsletter.ai/2109436202554372476">驗證入門長串（X）</a> <small>· 2026-10-12 · 存檔</small></li>
+    <li><a href="https://x.com/poteto/status/2117437607940681849">「adversarial review 大多在浪費 token」（X）</a> <small>· 2026-11-03</small></li>
+    <li><a href="https://x.com/poteto/status/2109885001584292091">「writing is thinking」（X）</a> <small>· 2026-10-13</small></li>
+    <li><a href="https://www.youtube.com/watch?v=O_zcc6Xl12g">All Code Is Slop（影片）</a>、<a href="https://ai.engineer/api/code/reading-download/transcripts/lauren-tan.md">機器逐字稿</a> <small>· 2026-11-11 · AI Engineer CODE</small></li>
+    <li><a href="https://www.youtube.com/live/MN9dGgmLyso">Matt Pocock 直播</a> <small>· 2026-10-02</small>；<a href="https://www.youtube.com/watch?v=y1-9yeYLJUo">YC Lightcone：The Rise Of AI Coworkers</a> <small>· 2026-11-14</small></li>
+    <li><a href="https://www.youtube.com/watch?v=xZ5TEaleUdg">Behind the Craft：Grok Bot 團隊</a> <small>· 2026-09-27</small>；<a href="https://www.youtube.com/watch?v=A63sedG-p5Q">MTS 訪談</a> <small>· 2026-08-13</small></li>
+    <li><a href="https://www.youtube.com/watch?v=Cmoh-yR-usA">Maven 工作坊錄影</a>、<a href="https://sozai.app/transcript/spacex-ai-engineer-lauren-tan-part-1/">逐字稿</a> <small>· 2026-08-12</small></li>
+    <li><a href="https://cursor.com/compile/london">Cursor Compile London 議程「I Shipped 2,000 PRs Last Month」</a> <small>· 2026-09-16</small></li>
+    <li><a href="https://github.com/poteto/noodle">poteto/noodle</a>、<a href="https://github.com/poteto/brainmaxxing">poteto/brainmaxxing</a>、<a href="https://github.com/poteto/verification-skill-example">verification-skill-example</a> <small>· 2026-02～07</small></li>
+    <li><a href="https://react.dev/blog/2024/10/21/react-compiler-beta-release">React Compiler Beta Release</a> <small>· 2024-10 · 她單獨署名</small>；<a href="https://github.com/reactwg/react-compiler/discussions/8">大型 codebase 導入指南</a> <small>· 2024-04</small></li>
+    <li><a href="https://www.no.lol/2020-05-11-this-time-is-different/">This Time Is Different</a>、<a href="https://www.no.lol/2015-04-10-the-importance-of-being-experience-first/">The Importance of Being Experience First</a> <small>· no.lol 部落格</small></li>
+    <li><a href="https://github.com/poteto/hiring-without-whiteboards">hiring-without-whiteboards</a> <small>· 2017-03 起</small>；<a href="https://changelog.com/podcast/386">Changelog #386</a> <small>· 2020-03</small></li>
+  </ul>
+
+  <h3>二手整理</h3>
+  <ul>
+    <li><a href="https://redreamality.com/blog/lauren-tan-poteto-trust-before-parallel/">Trust First, Then Parallel</a> <small>· 2026-10-05 · 9 月演講解析</small></li>
+    <li><a href="https://maily.so/seanlee/posts/92zene88zep">Maven 工作坊心得（韓文）</a> <small>· 2026-09-29</small></li>
+    <li><a href="https://www.theneuron.ai/explainer-articles/pstack-explained-lauren-tans-system-for-trustworthy-ai-agents/">pstack explained（The Neuron）</a> <small>· 2026-09-10</small></li>
+    <li><a href="https://agmazon.com/blog/articles/technology/202610/pstack-poteto-mode-guide-en.html">pstack 正反意見彙整（agmazon）</a> <small>· 2026-10-19</small></li>
+    <li>cursor/plugins 採用者回報：<a href="https://github.com/cursor/plugins/issues/1271">#1271</a>、<a href="https://github.com/cursor/plugins/issues/726">#726</a>、<a href="https://github.com/cursor/plugins/issues/864">#864</a>、<a href="https://github.com/cursor/plugins/issues/809">#809</a> <small>· 2026-10～11</small></li>
+  </ul>
+
+  <details class="more">
+    <summary>下次更新要追的來源</summary>
+    <ul>
+      <li>Matt Pocock 直播的第二集：10-02 直播結尾約好「週一」再來</li>
+      <li>她引用的 Cindy 推文（70% token 花在驗證）：沒有姓氏或帳號</li>
+      <li>pstack 下一版：會不會處理 Claude Code 模型名稱（#1270）與 worker.md 和 interrogate 的衝突（#1272）</li>
+      <li>她的 X：長文與貼文是她最新想法最快出現的地方</li>
+    </ul>
+  </details>
+</section>
+
+<footer>
+  資料截至 2026-11-19。由 16 個研究 agent 分頭讀過她的貼文、長文、影片字幕、程式碼、部落格與外界評論後整理。數字都是她或同事自述，沒有獨立稽核；她的做法變得很快，實作前以 pstack 最新版為準。
+</footer>
+
+</div>
+<script>
+  (function () {
+    var sel = document.getElementById('theme');
+    sel.value = document.documentElement.dataset.theme;
+    sel.addEventListener('change', function () {
+      document.documentElement.dataset.theme = sel.value;
+      try { localStorage.setItem('nz-theme', sel.value); } catch (e) {}
+    });
+  })();
+</script>
+</body>
+</html>
