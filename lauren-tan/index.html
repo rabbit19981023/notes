@@ -169,7 +169,6 @@ footer { margin-top: var(--space-7); padding-top: var(--space-4); border-top: va
     <a href="#pstack">08 pstack</a>
     <a href="#shifts">09 演變</a>
     <a href="#numbers">10 數字與爭議</a>
-    <a href="#fixes">11 對齊</a>
     <a href="#sources">來源</a>
   </nav>
   <select class="nz-btn" id="theme" aria-label="切換亮度">
@@ -349,14 +348,6 @@ footer { margin-top: var(--space-7); padding-top: var(--space-4); border-top: va
   <div class="nz-list"><div class="nz-list-row"><span class="nz-badge nz-badge-warn">成本</span><div class="nz-list-title">同一件事時間大約翻倍，但抓到 agent 的 3 個假宣稱<small>單人單專案的實測（二手）</small></div></div><div class="nz-list-row"><span class="nz-badge">挑著用</span><div class="nz-list-title">HN 留言裡最常被單獨推薦：<code>/unslop</code>、<code>interrogate</code>、<code>blast-radius</code><small>也有人回報 <code>poteto-mode</code> 能端到端做完功能</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-bad">Claude Code</span><div class="nz-list-title">pstack 的必讀規則在 Claude Code 幾乎沒被讀<small>18 次執行中 adapter 只讀 1 次、原則檔 0 次。另一組 72 次實驗（其他 harness、Sonnet）：一句話補丁讀到 7 次；每本 playbook 開頭列必讀原則並砍短 skill 本體後到 68 次</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-bad">Claude Code</span><div class="nz-list-title">0.15.43 指定給子代理的模型在 Claude Code 不被接受<small>子代理會默默退回較舊的 Opus；社群已提修正 PR，還沒合併（issue #1270）</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-bad">Claude Code</span><div class="nz-list-title">跨模型 review 會悄悄變成全部跑 Claude<small>她在 noodle（2026-02）的做法是呼叫對方廠商的 CLI（<code>codex exec</code>、<code>claude -p</code>），不用自家子 agent</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-bad">操作雷</span><div class="nz-list-title"><code>worktree-cleanup</code> 會刪掉未追蹤的檔案；<code>watch-pr</code> 曾把不能 merge 的 PR 回報為 ready<small>GitHub issue 回報</small></div></div></div>
   <h3>她自己承認的限制</h3>
   <div class="nz-list"><div class="nz-list-row"><span class="nz-badge">token</span><div class="nz-list-title">她在 token 預設無上限的環境<small>她自己說這不典型</small></div></div><div class="nz-list-row"><span class="nz-badge">情緒</span><div class="nz-list-title">第一晚開 autopilot 自動 merge 很害怕<small>信任是一步步建立的</small></div></div><div class="nz-list-row"><span class="nz-badge">領域</span><div class="nz-list-title">主持人問到資料遺失這類單向門，她說自己沒有答案<small>只能處理可程式驗證的部分</small></div></div><div class="nz-list-row"><span class="nz-badge">人</span><div class="nz-list-title">基礎設施、資料庫、部署仍要人參與<small>團隊規則：影響日常介面的改動要先拿到內部 PMF（Lightcone，同事 Roman 說）</small></div></div></div>
-</section>
-
-<!-- 11 -->
-<section id="fixes">
-  <span class="nz-eyebrow">11 · 對齊</span>
-  <h2>三份既有成品要對齊的地方</h2>
-  <p class="lead">這次研究查到的現況，和三份深入頁寫的不同之處。</p>
-  <div class="nz-list"><div class="nz-list-row"><span class="nz-badge nz-badge-warn">系統頁</span><div class="nz-list-title">playbook 現在是 22 本，不是 12 本<small>數量歷史 7 → 14 → 15 → 16 → 18 → 22 → 23 → 22（pstack 0.15.43）</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-warn">系統頁</span><div class="nz-list-title"><code>interrogate</code> 不再是標準流程<small>只留給有爭議的設計</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-warn">系統頁</span><div class="nz-list-title"><code>deslop</code>、<code>control-cli</code>、<code>control-ui</code> 不是她寫的<small>作者是 Cursor 的 Eric Zakariasson，放在 cursor-team-kit</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-warn">系統頁</span><div class="nz-list-title">「2,500 PR」那場演講原名是「2,000 PRs」<small>Compile London 官方議程與影片口述都是約 2,000；2,500 是 X 貼文標題，10 月 Pocock 直播也說 2,500</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-warn">slop 頁</span><div class="nz-list-title">70% 是她引用 Cindy 推文的數字，不是她的<small>她說自己「大部分」token 花在驗證（演講 12:06）</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-warn">slop 頁</span><div class="nz-list-title">review 3 → 300 個 PR 沒有時間單位<small>她沒說「每天」</small></div></div><div class="nz-list-row"><span class="nz-badge nz-badge-warn">先深後快</span><div class="nz-list-title">在 Claude Code 上要另外處理兩件事<small>必讀規則要嵌進流程本身；跨模型審查要真的呼叫別家 CLI</small></div></div><div class="nz-list-row"><span class="nz-badge">三份共同</span><div class="nz-list-title">防線沒有固定的層數<small>她每次分 4 或 5 層、名稱也不同；不變的是 codebase 在最上層，文字規則與人工 review 偏下層</small></div></div></div>
 </section>
 
 <!-- sources -->
