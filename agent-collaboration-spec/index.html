@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent 協作共識規格</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=LXGW+WenKai+TC:wght@400;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* 暖紙墨綠：低亮度暖色紙、墨綠重點色、手繪歪框。版面：單欄長文，圖在前、字在後，表格與流程圖各自橫向捲動。 */
+:root {
+  --page:#e6e1d3; --surface:#eeeadf; --sunk:#ddd7c7; --ink:#2b2a26; --ink-muted:#5c584f; --line:#cfc8b7;
+  --accent:#2f6b4f; --accent-soft:#d3e1d6; --on-accent:#f2eee4; --info:#3b6283; --info-soft:#d5dfe7;
+  --ok:#2f6b4f; --ok-soft:#d3e1d6; --warn:#7e5310; --warn-soft:#eadbbc; --bad:#9e3f35; --bad-soft:#ebd2cc;
+  --code-bg:#dcd6c6; --code-ink:#2b2a26; --highlight:#e3cf8e;
+  --font-sans:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;
+  --font-hand:"LXGW WenKai TC","Noto Sans TC","PingFang TC",serif;
+  --font-mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+  --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px; --space-5:24px; --space-6:32px; --space-7:56px;
+  --radius-sm:4px; --radius-md:8px; --radius-pill:999px;
+  --wobble-sm:255px 15px 225px 15px/15px 225px 15px 255px;
+  --wobble-lg:18px 6px 22px 5px/5px 22px 6px 18px;
+  --stroke-hair:1px; --stroke-hand:1.5px; --stroke-node:1.8px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --page:#1f1e1b; --surface:#282723; --sunk:#302f2a; --ink:#ddd7ca; --ink-muted:#a39d91; --line:#3d3b35;
+    --accent:#86b497; --accent-soft:#253229; --on-accent:#1f1e1b; --info:#93afcb; --info-soft:#232c36;
+    --ok:#86b497; --ok-soft:#253229; --warn:#d9ae62; --warn-soft:#3a3119; --bad:#e5907f; --bad-soft:#3d2622;
+    --code-bg:#191815; --code-ink:#ddd7ca; --highlight:#4f4423; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --page:#1f1e1b; --surface:#282723; --sunk:#302f2a; --ink:#ddd7ca; --ink-muted:#a39d91; --line:#3d3b35;
+  --accent:#86b497; --accent-soft:#253229; --on-accent:#1f1e1b; --info:#93afcb; --info-soft:#232c36;
+  --ok:#86b497; --ok-soft:#253229; --warn:#d9ae62; --warn-soft:#3a3119; --bad:#e5907f; --bad-soft:#3d2622;
+  --code-bg:#191815; --code-ink:#ddd7ca; --highlight:#4f4423; color-scheme: dark;
+}
+:root[data-nz="soft-paper"] {
+  --page:#e6e1d3; --surface:#eeeadf; --sunk:#ddd7c7; --ink:#2b2a26; --ink-muted:#5c584f; --line:#cfc8b7;
+  --accent:#2f6b4f; --accent-soft:#d3e1d6; --on-accent:#f2eee4; --info:#3b6283; --info-soft:#d5dfe7;
+  --ok:#2f6b4f; --ok-soft:#d3e1d6; --warn:#7e5310; --warn-soft:#eadbbc; --bad:#9e3f35; --bad-soft:#ebd2cc;
+  --code-bg:#dcd6c6; --code-ink:#2b2a26; --highlight:#e3cf8e; color-scheme: light;
+}
+:root[data-nz="dusk"] {
+  --page:#d3cdbe; --surface:#ddd8ca; --sunk:#c9c2b1; --ink:#24231f; --ink-muted:#4f4b43; --line:#bcb4a1;
+  --accent:#265940; --accent-soft:#c3d3c5; --on-accent:#f2eee4; --info:#30557a; --info-soft:#c3cfd9;
+  --ok:#265940; --ok-soft:#c3d3c5; --warn:#6b480d; --warn-soft:#dcc9a4; --bad:#8a372e; --bad-soft:#dcc1ba;
+  --code-bg:#c7c0ae; --code-ink:#24231f; --highlight:#d9c27a; color-scheme: light;
+}
+:root[data-nz="graphite"] {
+  --page:#2a2c29; --surface:#323531; --sunk:#3a3d38; --ink:#e2e2da; --ink-muted:#aeb0a7; --line:#4a4d46;
+  --accent:#8fbf9f; --accent-soft:#33453a; --on-accent:#1f211e; --info:#9db8d3; --info-soft:#344150;
+  --ok:#8fbf9f; --ok-soft:#33453a; --warn:#e0b865; --warn-soft:#4a4128; --bad:#ec9785; --bad-soft:#4d312c;
+  --code-bg:#242623; --code-ink:#e2e2da; --highlight:#5a4e2a; color-scheme: dark;
+}
+:root[data-nz="night-ink"] {
+  --page:#1f1e1b; --surface:#282723; --sunk:#302f2a; --ink:#ddd7ca; --ink-muted:#a39d91; --line:#3d3b35;
+  --accent:#86b497; --accent-soft:#253229; --on-accent:#1f1e1b; --info:#93afcb; --info-soft:#232c36;
+  --ok:#86b497; --ok-soft:#253229; --warn:#d9ae62; --warn-soft:#3a3119; --bad:#e5907f; --bad-soft:#3d2622;
+  --code-bg:#191815; --code-ink:#ddd7ca; --highlight:#4f4423; color-scheme: dark;
+}
+:root[data-nz="deep-forest"] {
+  --page:#141a17; --surface:#1b2320; --sunk:#222c28; --ink:#d3dcd5; --ink-muted:#93a49b; --line:#2f3b36;
+  --accent:#7cc29a; --accent-soft:#1e3329; --on-accent:#141a17; --info:#8fb3d1; --info-soft:#1c2a33;
+  --ok:#7cc29a; --ok-soft:#1e3329; --warn:#e0b865; --warn-soft:#352d17; --bad:#eb9482; --bad-soft:#3a221e;
+  --code-bg:#0f1411; --code-ink:#d3dcd5; --highlight:#46401f; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { margin:0; font-family:var(--font-sans); font-size:15px; line-height:27px; background:var(--page); color:var(--ink); }
+a { color:var(--accent); text-underline-offset:3px; }
+a:focus-visible, select:focus-visible, button:focus-visible { outline:2px dashed var(--accent); outline-offset:3px; }
+code { font-family:var(--font-mono); font-size:.86em; background:var(--sunk); padding:1px 6px; border-radius:var(--radius-sm); }
+
+.wrap { max-width:880px; margin:0 auto; padding:var(--space-5) var(--space-5) var(--space-7); }
+.topbar { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:center; justify-content:space-between; }
+.nz-eyebrow { font-family:var(--font-mono); font-size:11.5px; line-height:16px; font-weight:600; color:var(--ink-muted); letter-spacing:.02em; }
+.theme { display:flex; align-items:center; gap:var(--space-2); font-size:13px; color:var(--ink-muted); }
+.theme select { font:inherit; font-size:13px; color:var(--ink); background:var(--surface); border:var(--stroke-hand) solid var(--ink); border-radius:var(--wobble-sm); padding:3px 10px; }
+
+header.hero { margin:var(--space-6) 0 var(--space-5); }
+h1 { font-family:var(--font-hand); font-size:40px; line-height:48px; font-weight:700; margin:var(--space-2) 0 var(--space-3); text-wrap:balance; }
+.lead { font-size:17px; line-height:30px; max-width:36em; margin:0 0 var(--space-4); }
+h2 { font-size:28px; line-height:38px; font-weight:900; margin:0 0 var(--space-3); text-wrap:balance; }
+h3 { font-size:17px; line-height:26px; font-weight:700; margin:var(--space-5) 0 var(--space-2); }
+p { margin:0 0 var(--space-3); max-width:38em; }
+section { margin-top:var(--space-7); scroll-margin-top:var(--space-4); }
+.sec-id { display:block; margin-bottom:var(--space-1); }
+
+nav.toc { display:flex; flex-wrap:wrap; gap:var(--space-1) var(--space-4); padding:var(--space-3) var(--space-4); background:var(--surface); border:var(--stroke-hand) solid var(--ink); border-radius:var(--wobble-lg); font-size:13px; line-height:21px; }
+nav.toc a { color:var(--ink); text-decoration:none; border-bottom:1px solid var(--line); }
+nav.toc a:hover { color:var(--accent); border-bottom-color:var(--accent); }
+
+.nz-btn { font:inherit; font-size:14px; line-height:20px; font-weight:500; padding:7px 16px; border:var(--stroke-hand) solid var(--ink); border-radius:var(--wobble-sm); background:var(--surface); color:var(--ink); cursor:pointer; }
+.nz-btn-primary { background:var(--accent); color:var(--on-accent); }
+.nz-btn-primary:hover { filter:brightness(1.06); }
+.copy-row { display:flex; flex-wrap:wrap; gap:var(--space-3); align-items:center; }
+.copy-status { font-size:13px; color:var(--ink-muted); }
+#copy-fallback { display:none; width:100%; height:180px; margin-top:var(--space-3); font-family:var(--font-mono); font-size:12px; line-height:19px; background:var(--code-bg); color:var(--code-ink); border:var(--stroke-hair) solid var(--line); border-radius:var(--radius-sm); padding:var(--space-3); }
+
+.nz-badge { display:inline-block; font-size:12px; line-height:20px; font-weight:500; padding:0 var(--space-2); border-radius:var(--radius-pill); background:var(--sunk); color:var(--ink); white-space:nowrap; }
+.nz-badge-ok { background:var(--ok-soft); color:var(--ok); }
+.nz-badge-warn { background:var(--warn-soft); color:var(--warn); }
+.nz-badge-bad { background:var(--bad-soft); color:var(--bad); }
+.nz-badge-info { background:var(--info-soft); color:var(--info); }
+
+.nz-callout { display:flex; gap:var(--space-3); align-items:flex-start; padding:var(--space-3) var(--space-4); background:var(--warn-soft); border:var(--stroke-hand) solid var(--ink); border-radius:var(--wobble-lg); font-size:14px; line-height:24px; margin:var(--space-4) 0; max-width:44em; }
+.nz-callout p { margin:0; max-width:none; }
+.nz-callout b { color:var(--warn); }
+.nz-callout-icon { flex:none; width:22px; height:22px; margin-top:1px; border-radius:var(--radius-pill); background:var(--warn); color:var(--page); display:grid; place-items:center; font-weight:700; font-size:13px; line-height:1; }
+
+.nz-card { background:var(--surface); border:var(--stroke-hand) solid var(--ink); border-radius:var(--wobble-lg); padding:var(--space-4); }
+.nz-card h3 { margin:0 0 var(--space-1); }
+.nz-card p, .nz-card li { font-size:14px; line-height:24px; color:var(--ink-muted); margin:0; max-width:none; }
+.nz-card ul { margin:0; padding-left:1.2em; }
+.grid2 { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:var(--space-4); }
+.grid3 { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:var(--space-4); }
+.rule-id { font-family:var(--font-mono); font-size:11.5px; font-weight:600; color:var(--accent); }
+.card-tag { margin-bottom:var(--space-2); }
+
+figure { margin:var(--space-4) 0; }
+figcaption { font-size:13px; line-height:21px; color:var(--ink-muted); margin-top:var(--space-2); max-width:44em; }
+figcaption b { font-family:var(--font-mono); font-size:11.5px; font-weight:600; margin-right:var(--space-1); }
+.fig-box { background:var(--surface); border:var(--stroke-hand) solid var(--ink); border-radius:var(--wobble-lg); padding:var(--space-5) var(--space-4); overflow-x:auto; }
+
+.nz-node { text-align:center; padding:10px var(--space-2); font-family:var(--font-hand); font-size:16px; line-height:22px; font-weight:700; color:var(--ink); background:var(--surface); border:var(--stroke-node) solid var(--ink); border-radius:var(--wobble-sm); }
+.nz-node small { display:block; font-size:13px; line-height:19px; font-weight:400; color:var(--ink-muted); }
+.nz-node-start { background:var(--sunk); }
+.nz-node-key { background:var(--accent-soft); }
+.nz-node-alt { background:var(--info-soft); }
+.nz-node-end { background:var(--ok-soft); }
+.nz-node-bad { background:var(--bad-soft); }
+.nz-arrow, .v-arrow { flex:none; fill:none; stroke:currentColor; stroke-width:var(--stroke-node); stroke-linecap:round; stroke-linejoin:round; color:var(--ink); }
+.nz-arrow { width:40px; height:16px; }
+.v-arrow { width:16px; height:34px; display:block; margin:2px auto; }
+.nz-flow-label { font-family:var(--font-hand); font-size:13.5px; line-height:19px; color:var(--ink-muted); text-align:center; margin-top:var(--space-3); }
+
+.hub { display:grid; grid-template-columns:minmax(120px,1fr) 44px minmax(150px,1.25fr) 44px minmax(120px,1fr); align-items:center; min-width:500px; max-width:640px; margin:0 auto;
+  grid-template-areas:". . you . ." ". . a1 . ." "main a2 files a3 worker" ". . a4 . ." ". . verify . ."; }
+.hub-you{grid-area:you} .hub-a1{grid-area:a1} .hub-main{grid-area:main} .hub-a2{grid-area:a2; justify-self:center}
+.hub-files{grid-area:files; padding:var(--space-4) var(--space-2)} .hub-a3{grid-area:a3; justify-self:center} .hub-worker{grid-area:worker}
+.hub-a4{grid-area:a4} .hub-verify{grid-area:verify}
+.hub-files .kinds { display:block; margin-top:var(--space-2); font-size:14px; line-height:22px; font-weight:400; }
+.legend { display:flex; flex-wrap:wrap; gap:var(--space-2) var(--space-4); margin-top:var(--space-4); font-size:13px; color:var(--ink-muted); justify-content:center; }
+.legend span::before { content:""; display:inline-block; width:12px; height:12px; margin-right:6px; vertical-align:-1px; border:1.2px solid var(--ink); border-radius:3px; background:var(--sw); }
+
+.cols { display:grid; grid-template-columns:repeat(2,minmax(200px,1fr)); gap:var(--space-5); min-width:460px; }
+.col-title { font-family:var(--font-hand); font-size:15px; font-weight:700; text-align:center; color:var(--ink-muted); margin-bottom:var(--space-3); }
+.nz-flow { display:flex; align-items:center; gap:var(--space-1); min-width:560px; }
+.nz-flow .nz-node { flex:1; min-width:0; }
+
+.nz-list { list-style:none; margin:var(--space-3) 0; padding:0; background:var(--surface); border:var(--stroke-hand) solid var(--ink); border-radius:var(--wobble-lg); overflow:hidden; max-width:46em; }
+.nz-list-row { display:flex; align-items:flex-start; gap:var(--space-3); padding:10px var(--space-4); border-top:var(--stroke-hair) solid var(--line); font-size:14px; line-height:22px; }
+.nz-list-row:first-child { border-top:0; }
+.nz-list-row .nz-badge { flex:none; min-width:7em; text-align:center; margin-top:1px; }
+.nz-list-title { flex:1; min-width:0; }
+
+.table-wrap { overflow-x:auto; margin:var(--space-3) 0; border:var(--stroke-hair) solid var(--line); border-radius:var(--radius-md); background:var(--surface); }
+table { border-collapse:collapse; width:100%; min-width:560px; font-size:14px; line-height:23px; }
+th, td { text-align:left; vertical-align:top; padding:9px var(--space-3); border-top:var(--stroke-hair) solid var(--line); }
+thead th { background:var(--sunk); border-top:0; font-size:13px; font-weight:700; white-space:nowrap; }
+tbody th { font-weight:700; white-space:nowrap; }
+td.no { color:var(--ink-muted); }
+ul.plain { margin:0 0 var(--space-3); padding-left:1.3em; max-width:38em; }
+ul.plain li { margin:2px 0; }
+.sources { font-size:13px; line-height:22px; color:var(--ink-muted); padding-left:1.3em; }
+footer { margin-top:var(--space-7); padding-top:var(--space-4); border-top:var(--stroke-hair) solid var(--line); font-size:13px; color:var(--ink-muted); }
+.sr-only { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+
+@media (max-width:640px) {
+  .wrap { padding:var(--space-4) var(--space-4) var(--space-7); }
+  h1 { font-size:31px; line-height:40px; }
+  h2 { font-size:23px; line-height:32px; }
+  .grid2, .grid3 { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div class="topbar" data-skip>
+  <span class="nz-eyebrow">規格 · 不綁工具 · 不含實作細節</span>
+  <label class="theme" for="theme-select">亮度
+    <select id="theme-select">
+      <option value="">跟隨系統</option>
+      <option value="soft-paper">柔光紙</option>
+      <option value="dusk">暮色</option>
+      <option value="graphite">石墨</option>
+      <option value="night-ink">夜讀暖墨</option>
+      <option value="deep-forest">深林</option>
+    </select>
+  </label>
+</div>
+
+<main id="spec">
+
+<header class="hero">
+  <h1>檔案當記憶，對話用完就丟</h1>
+  <p class="lead">長時間的 agent 工作裡，你不讀回覆，只讀狀態和證據。這份規格只說要守住哪些規則；怎麼實作，由實作者決定。</p>
+  <div class="copy-row" data-skip>
+    <button class="nz-btn nz-btn-primary" id="copy-btn" type="button">複製純文字版，貼給實作的 agent</button>
+    <span class="copy-status" id="copy-status" role="status"></span>
+  </div>
+  <textarea id="copy-fallback" readonly aria-label="純文字版規格" data-skip></textarea>
+</header>
+
+<nav class="toc" aria-label="章節" data-skip>
+  <a href="#overview">總覽</a>
+  <a href="#problem">問題</a>
+  <a href="#rules">七條規則</a>
+  <a href="#roles">角色</a>
+  <a href="#files">檔案層</a>
+  <a href="#reading">你讀什麼</a>
+  <a href="#splitting">拆任務</a>
+  <a href="#checkpoints">檢查點</a>
+  <a href="#gap">工具缺口</a>
+  <a href="#scope">不決定的事</a>
+  <a href="#evidence">依據</a>
+</nav>
+
+<section id="overview">
+  <h2>所有角色只透過檔案層溝通</h2>
+  <figure data-text="［圖 1］檔案層在中央，是唯一事實來源，存放計畫、狀態、日誌、結果、證據。主線（只調度，不讀全文）、Worker（做完寫檔就結束）、驗證者（沒看過過程，產出證據）各自讀寫檔案層，彼此不直接傳長訊息。你只從檔案層讀狀態與證據。">
+    <div class="fig-box" role="group" aria-label="總覽圖：檔案層在中央，主線、Worker、驗證者各自讀寫檔案層，你只從檔案層讀取">
+      <div class="hub">
+        <div class="nz-node nz-node-alt hub-you">你<small>只讀狀態與證據</small></div>
+        <svg class="v-arrow hub-a1" viewBox="0 0 16 34" aria-hidden="true"><path d="M8 31 Q11 17 8 4 M3 10 L8 3 L13 10"/></svg>
+        <div class="nz-node nz-node-start hub-main">主線<small>只調度，不讀全文</small></div>
+        <svg class="nz-arrow hub-a2" viewBox="0 0 40 16" aria-hidden="true"><path d="M4 8 Q20 4 36 8 M30 3 L37 8 L31 13 M10 3 L3 8 L9 13"/></svg>
+        <div class="nz-node nz-node-key hub-files">檔案層<small>唯一事實來源</small><span class="kinds">計畫 · 狀態 · 日誌<br>結果 · 證據</span></div>
+        <svg class="nz-arrow hub-a3" viewBox="0 0 40 16" aria-hidden="true"><path d="M4 8 Q20 4 36 8 M30 3 L37 8 L31 13 M10 3 L3 8 L9 13"/></svg>
+        <div class="nz-node nz-node-start hub-worker">Worker<small>做完寫檔就結束</small></div>
+        <svg class="v-arrow hub-a4" viewBox="0 0 16 34" aria-hidden="true"><path d="M8 4 Q5 17 8 30 M3 24 L8 31 L13 24 M3 10 L8 3 L13 10"/></svg>
+        <div class="nz-node nz-node-start hub-verify">驗證者<small>沒看過過程，產出證據</small></div>
+      </div>
+      <div class="legend">
+        <span style="--sw:var(--accent-soft)">留下來的檔案</span>
+        <span style="--sw:var(--sunk)">用完就丟的 context</span>
+        <span style="--sw:var(--info-soft)">你</span>
+      </div>
+    </div>
+    <figcaption><b>圖 1</b>沒有任何角色靠長訊息互相傳話。對話是暫時的，留下來的只有檔案。</figcaption>
+  </figure>
+</section>
+
+<section id="problem">
+  <h2>回覆是事件流，你要的是現況</h2>
+  <p>長任務裡，背景工作每完成一次，就叫醒主線回一段。每一段單看都合理，疊起來就出現五個症狀，分成兩類。</p>
+  <div class="grid2">
+    <article class="nz-card">
+      <h3>讀者端：你讀得很累</h3>
+      <ul>
+        <li>重複的資訊</li>
+        <li>重點被埋在某個角落，要全部讀完才敢確定沒漏</li>
+        <li>前後矛盾</li>
+      </ul>
+    </article>
+    <article class="nz-card">
+      <h3>Context 端：agent 變笨、變貴</h3>
+      <ul>
+        <li>雜訊引發幻覺</li>
+        <li>浪費 context 與 token</li>
+      </ul>
+    </article>
+  </div>
+  <p style="margin-top:var(--space-4)">兩類都要從根本解決。只讓畫面安靜、context 照樣被佔的做法不算數。</p>
+
+  <figure data-text="［圖 2］現在的事件流：背景工作完成 → 主線回一段 → 回覆越疊越多 → 你讀完全部才敢確定沒漏。這份規格：背景工作完成 → 結果寫進檔案層 → 彙整成一份狀態 → 你讀狀態與證據。">
+    <div class="fig-box" role="group" aria-label="並排比較：事件流讓回覆越疊越多；規格的做法是把結果寫進檔案層，彙整成一份狀態">
+      <div class="cols">
+        <div>
+          <div class="col-title">事件流</div>
+          <div class="nz-node nz-node-start">背景工作完成</div>
+          <svg class="v-arrow" viewBox="0 0 16 34" aria-hidden="true"><path d="M8 3 Q5 17 8 30 M3 24 L8 31 L13 24"/></svg>
+          <div class="nz-node">主線回一段</div>
+          <svg class="v-arrow" viewBox="0 0 16 34" aria-hidden="true"><path d="M8 3 Q11 17 8 30 M3 24 L8 31 L13 24"/></svg>
+          <div class="nz-node">回覆越疊越多</div>
+          <svg class="v-arrow" viewBox="0 0 16 34" aria-hidden="true"><path d="M8 3 Q5 17 8 30 M3 24 L8 31 L13 24"/></svg>
+          <div class="nz-node nz-node-bad">你讀完全部<small>才敢確定沒漏</small></div>
+        </div>
+        <div>
+          <div class="col-title">這份規格</div>
+          <div class="nz-node nz-node-start">背景工作完成</div>
+          <svg class="v-arrow" viewBox="0 0 16 34" aria-hidden="true"><path d="M8 3 Q11 17 8 30 M3 24 L8 31 L13 24"/></svg>
+          <div class="nz-node nz-node-key">結果寫進檔案層</div>
+          <svg class="v-arrow" viewBox="0 0 16 34" aria-hidden="true"><path d="M8 3 Q5 17 8 30 M3 24 L8 31 L13 24"/></svg>
+          <div class="nz-node nz-node-key">彙整成一份狀態</div>
+          <svg class="v-arrow" viewBox="0 0 16 34" aria-hidden="true"><path d="M8 3 Q11 17 8 30 M3 24 L8 31 L13 24"/></svg>
+          <div class="nz-node nz-node-alt">你讀狀態與證據<small>份量不隨事件數成長</small></div>
+        </div>
+      </div>
+    </div>
+    <figcaption><b>圖 2</b>左邊每個事件都變成一段要讀的回覆。右邊事件只改寫現況。</figcaption>
+  </figure>
+</section>
+
+<section id="rules">
+  <h2>七條規則</h2>
+  <div class="grid2">
+    <article class="nz-card">
+      <h3><span class="rule-id">P1</span> 檔案當記憶</h3>
+      <p>計畫、進度、決策、結果、證據都寫進檔案，跟專案一起保存。沒寫進檔案的事，對接手的 agent 等於不存在。</p>
+    </article>
+    <article class="nz-card">
+      <h3><span class="rule-id">P2</span> 對話用完就丟</h3>
+      <p>任何角色只靠檔案就能接手。階段之間換乾淨的 context：只帶上一階段的產出進場，不帶對話紀錄。</p>
+    </article>
+    <article class="nz-card">
+      <h3><span class="rule-id">P3</span> 只傳參照，不傳全文</h3>
+      <p>角色之間不靠長訊息傳話。Worker 把產出存進檔案層，回給主線的只有一句結論和去哪裡看。不失真，也省 token。</p>
+    </article>
+    <article class="nz-card">
+      <h3><span class="rule-id">P4</span> 寫入單線</h3>
+      <p>同一批檔案，同一時間只有一個寫入者。其他角色貢獻判斷，不動手改。共用的狀態也只有一個角色能寫。</p>
+    </article>
+    <article class="nz-card">
+      <h3><span class="rule-id">P5</span> 狀態和日誌分開寫</h3>
+      <p>兩者都要。狀態回答「現在是什麼情況」，給你讀。日誌回答「發生過什麼」，給接手的 agent 和追查時用。</p>
+    </article>
+    <article class="nz-card">
+      <h3><span class="rule-id">P6</span> 用驗證取代閱讀</h3>
+      <p>你不讀過程，也不逐行讀產出，只檢查驗證產物：影片、截圖、圖表、測試與形式化驗證的輸出。負責驗證的角色沒看過製作過程。</p>
+    </article>
+    <article class="nz-card">
+      <h3><span class="rule-id">P7</span> 主線保持短</h3>
+      <p>長任務不放在主線跑，交給背景 session 或 workflow。主線只調度：不讀全文，不自己維護狀態。</p>
+    </article>
+  </div>
+
+  <figure data-text="［圖 3］P2 的例子：研究 → 計畫 → 實作 → 驗證。每個箭頭上只有產出檔，沒有對話紀錄。階段名稱和數量由實作者決定。">
+    <div class="fig-box" role="group" aria-label="階段交接流程：研究、計畫、實作、驗證，交接時只傳產出檔">
+      <div class="nz-flow">
+        <div class="nz-node nz-node-start">研究</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg>
+        <div class="nz-node">計畫</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 8 Q20 12 36 8 M30 3 L37 8 L31 13"/></svg>
+        <div class="nz-node">實作</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg>
+        <div class="nz-node nz-node-end">驗證</div>
+      </div>
+      <div class="nz-flow-label">每個箭頭上只有產出檔，沒有對話紀錄</div>
+    </div>
+    <figcaption><b>圖 3</b>P2 的例子。階段名稱和數量由實作者決定，不變的是交接只靠檔案。</figcaption>
+  </figure>
+
+  <h3>每個症狀由哪些規則處理</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>症狀</th><th>處理它的規則</th></tr></thead>
+      <tbody>
+        <tr><th>重複的資訊</th><td>P5 狀態只留現況；彙整時去重</td></tr>
+        <tr><th>重點被埋</th><td>狀態分成四組；簡報先講結論；要你決策的事主動通知</td></tr>
+        <tr><th>前後矛盾</th><td>P4 共用狀態只有一個寫入者；寫簡報的角色沒看過過程</td></tr>
+        <tr><th>雜訊引發幻覺</th><td>P2、P3、P7：雜訊不進主線，階段之間不帶對話</td></tr>
+        <tr><th>浪費 context 與 token</th><td>P3 只傳參照；P7 主線保持短</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="roles">
+  <h2>六個角色，各管一件事</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>角色</th><th>做什麼</th><th>不做什麼</th></tr></thead>
+      <tbody>
+        <tr><th>主線</th><td>拆任務、派工、收參照</td><td class="no">不讀全文、不跑長任務、不維護狀態</td></tr>
+        <tr><th>Worker</th><td>做一件事。收尾時寫下自己的結果，回一句參照後結束</td><td class="no">不改別人負責的檔案、不寫共用狀態</td></tr>
+        <tr><th>彙整者</th><td>把各 worker 的結果彙整成共用狀態，去重、消除矛盾</td><td class="no">不做任務本身</td></tr>
+        <tr><th>驗證者</th><td>只拿需求和產出，實際驗證並留下證據</td><td class="no">不看製作過程、不修改產出</td></tr>
+        <tr><th>簡報者</th><td>你回來時，只依狀態和證據寫一份簡報</td><td class="no">不看製作過程、不加自己的推測</td></tr>
+        <tr><th>你</th><td>在檢查點讀狀態與證據、做決策</td><td class="no">不讀過程對話</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>角色是職責，不是固定的 agent 數量。一個職責可以由多個 agent 分擔，但同一個 agent 不同時負責「做」和「驗」。</p>
+</section>
+
+<section id="files">
+  <h2>檔案層放五種東西</h2>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>種類</th><th>回答的問題</th><th>誰寫</th><th>主要讀者</th></tr></thead>
+      <tbody>
+        <tr><th>計畫</th><td>要做什麼、怎樣算完成</td><td>主線</td><td>所有角色</td></tr>
+        <tr><th>狀態</th><td>現在是什麼情況</td><td>彙整者</td><td>你、主線、簡報者</td></tr>
+        <tr><th>日誌</th><td>發生過什麼、做過哪些決定</td><td>各角色，只追加自己的</td><td>接手的 agent、追查時的你</td></tr>
+        <tr><th>結果</th><td>這件工作的產出</td><td>負責那件工作的 worker</td><td>驗證者、彙整者</td></tr>
+        <tr><th>證據</th><td>憑什麼相信產出是對的</td><td>驗證者</td><td>你、簡報者</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>狀態會被改寫，永遠只留現況。日誌只追加，不回頭改。兩者不放在同一處。</p>
+</section>
+
+<section id="reading">
+  <h2>平時看四組狀態，回來時讀一份簡報</h2>
+  <figure data-text="［圖 4］各 worker 的結果 → 彙整者 → 狀態 → 簡報者 → 你。驗證者留下的證據，也是簡報者的材料。狀態由彙整者持續維護；簡報在你回來時才寫，寫的角色沒看過過程。">
+    <div class="fig-box" role="group" aria-label="流程：各自的結果交給彙整者寫成狀態，簡報者依狀態與證據寫簡報給你">
+      <div class="nz-flow">
+        <div class="nz-node nz-node-key">各自的結果</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg>
+        <div class="nz-node nz-node-start">彙整者</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 8 Q20 12 36 8 M30 3 L37 8 L31 13"/></svg>
+        <div class="nz-node nz-node-key">狀態</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg>
+        <div class="nz-node nz-node-start">簡報者</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 8 Q20 12 36 8 M30 3 L37 8 L31 13"/></svg>
+        <div class="nz-node nz-node-alt">你</div>
+      </div>
+      <div class="nz-flow-label">驗證者留下的證據，也是簡報者的材料</div>
+    </div>
+    <figcaption><b>圖 4</b>狀態由彙整者持續維護。簡報在你回來時才寫，寫的角色沒看過過程。</figcaption>
+  </figure>
+
+  <h3>每件工作落在四組之一</h3>
+  <ul class="nz-list">
+    <li class="nz-list-row"><span class="nz-badge nz-badge-bad">需要你決策</span><span class="nz-list-title">卡住了，你不決定就不會往下走。主動通知你，不排隊等你回來。</span></li>
+    <li class="nz-list-row"><span class="nz-badge nz-badge-warn">需要你注意</span><span class="nz-list-title">沒有卡住，但出現風險或異常，你應該知道。</span></li>
+    <li class="nz-list-row"><span class="nz-badge">還剩下</span><span class="nz-list-title">正在做，或排著還沒做。</span></li>
+    <li class="nz-list-row"><span class="nz-badge nz-badge-ok">已完成</span><span class="nz-list-title">做完，而且附上證據。沒有證據不算完成。</span></li>
+  </ul>
+
+  <h3>簡報的三個要求</h3>
+  <ul class="plain">
+    <li>先結論，再細節。</li>
+    <li>每一點都指得回證據。</li>
+    <li>同一件事只出現一次，前後不矛盾。</li>
+  </ul>
+</section>
+
+<section id="splitting">
+  <h2>會改到同一批檔案的工作，預設不拆</h2>
+  <p>Agent 自己按任務拆分、自己開 session，不需要你逐一派工。拆之前先問一個問題：這兩件工作會改到同一批檔案嗎？</p>
+  <div class="grid3">
+    <article class="nz-card">
+      <div class="card-tag"><span class="nz-badge nz-badge-ok">不會</span></div>
+      <h3>平行</h3>
+      <p>各開各的 session，各寫各的檔案。</p>
+    </article>
+    <article class="nz-card">
+      <div class="card-tag"><span class="nz-badge nz-badge-info">會 · 預設</span></div>
+      <h3>依序</h3>
+      <p>交給同一個寫入者，一件做完再做下一件。</p>
+    </article>
+    <article class="nz-card">
+      <div class="card-tag"><span class="nz-badge nz-badge-warn">會 · 例外</span></div>
+      <h3>隔離後平行</h3>
+      <p>各自在隔離的工作副本裡做（例如 git worktree），並指定單一整合者負責合併。</p>
+    </article>
+  </div>
+  <div class="nz-callout">
+    <span class="nz-callout-icon" aria-hidden="true">!</span>
+    <p><b>隔離擋不住隱性決定。</b>工作副本擋得住檔案互蓋，擋不住兩邊各自對風格、邊界情況、慣例做的決定，合併時仍會衝突。所以平行寫入只當例外。</p>
+  </div>
+  <p>同時進行的數量不設上限。出現你檢查不過來、或品質下降的情況時，再加上限。</p>
+</section>
+
+<section id="checkpoints">
+  <h2>你只在固定檢查點介入</h2>
+  <ul class="nz-list">
+    <li class="nz-list-row"><span class="nz-badge nz-badge-info">檢查點</span><span class="nz-list-title">研究完成後</span></li>
+    <li class="nz-list-row"><span class="nz-badge nz-badge-info">檢查點</span><span class="nz-list-title">重大設計決定前</span></li>
+    <li class="nz-list-row"><span class="nz-badge nz-badge-info">檢查點</span><span class="nz-list-title">交接時</span></li>
+    <li class="nz-list-row"><span class="nz-badge nz-badge-info">檢查點</span><span class="nz-list-title">發佈前</span></li>
+    <li class="nz-list-row"><span class="nz-badge nz-badge-bad">任何時候</span><span class="nz-list-title">出現需要你決策的事，主動通知你</span></li>
+  </ul>
+  <p>檢查點之間，agent 自己往下做，不需要你盯著。上面四個時點是起點，確切位置和數量可以調整。</p>
+</section>
+
+<section id="gap">
+  <h2>工具還沒補上的缺口，用繞的</h2>
+  <p>以 Claude Code 為例：在單一 session 裡，背景通知會逐一觸發主線回覆。撰寫這份規格時，沒有找到能合併或延後這些通知的設定。</p>
+  <p>規格的做法是繞過它，也就是 P7：長任務交給背景 session 或 workflow，主線不會被反覆叫醒。</p>
+  <div class="nz-callout">
+    <span class="nz-callout-icon" aria-hidden="true">!</span>
+    <p><b>靜音只是補丁。</b>要求主線不回話、或把畫面上的文字換掉，畫面會安靜，context 照樣被佔。可以當過渡，不能當解法。</p>
+  </div>
+</section>
+
+<section id="scope">
+  <h2>這份規格不決定的事</h2>
+  <p>下面這些留給實作者設計：</p>
+  <ul class="plain">
+    <li>檔案的格式、欄位和目錄結構</li>
+    <li>各角色的提示詞</li>
+    <li>用哪個工具的哪個功能來開 session、隔離工作副本、發通知</li>
+    <li>四組狀態用什麼畫面呈現</li>
+    <li>檢查點的確切位置和數量</li>
+  </ul>
+  <p>實作可以自由選擇，只要七條規則，以及每個角色「不做什麼」那一欄都守住。</p>
+</section>
+
+<section id="evidence">
+  <h2>依據</h2>
+  <p>這些規則來自多個團隊公開的實務做法。只有 P3、P4 附有量測數字，其餘是團隊自報或經驗，沒有對照實驗。</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>規則</th><th>誰公開在用</th><th>依據</th></tr></thead>
+      <tbody>
+        <tr><th>P1</th><td>OpenAI Codex 團隊、Anthropic、Manus</td><td>多個團隊各自得出同一做法</td></tr>
+        <tr><th>P2</th><td>HumanLayer、Anthropic 的長時間 agent harness</td><td>團隊自報：context 使用率壓在 40–60%</td></tr>
+        <tr><th>P3</th><td>Anthropic 研究系統</td><td>內部評測比單一 agent 高 90.2%。這是整套架構的成績，沒有單獨量這一條</td></tr>
+        <tr><th>P4</th><td>Cognition</td><td>上線數據：乾淨 context 的審查每個 PR 約抓出 2 個 bug，約 58% 屬嚴重。平行寫入仍未被採用</td></tr>
+        <tr><th>P5</th><td>Anthropic 的長時間 agent harness</td><td>做法描述：進度紀錄與完成清單分開存放</td></tr>
+        <tr><th>P6</th><td>Lauren Tan 的團隊</td><td>團隊自報：單月約 11,000 個 PR，revert 約 0.5%</td></tr>
+        <tr><th>P7</th><td>Manus；Claude Code 的背景 session</td><td>Manus 讓主執行者自己維護清單時，約三分之一的動作花在更新清單（第三方整理）</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <h3>來源</h3>
+  <ul class="sources">
+    <li><a href="https://www.anthropic.com/engineering/multi-agent-research-system">Anthropic：How we built our multi-agent research system</a></li>
+    <li><a href="https://anthropic.com/engineering/effective-harnesses-for-long-running-agents">Anthropic：Effective harnesses for long-running agents</a></li>
+    <li><a href="https://www.openai.com/index/harness-engineering">OpenAI：Harness engineering</a></li>
+    <li><a href="https://manus.im/en/blog/Context-Engineering-for-AI-Agents-Lessons-from-Building-Manus">Manus：Context Engineering for AI Agents</a></li>
+    <li><a href="https://tianpan.co/blog/2026/03/02/context-engineering-lessons-from-manus">Tian Pan：Six Context Engineering Techniques That Make Manus Work in Production</a></li>
+    <li><a href="https://cognition.com/blog/multi-agents-working">Cognition：Multi-Agents: What's Actually Working</a></li>
+    <li><a href="https://humanlayer.dev/blog/advanced-context-engineering">HumanLayer：Advanced Context Engineering for Coding Agents</a></li>
+    <li><a href="https://www.teamday.ai/ai/lauren-tan-spacexsi-grok-bot-11000-agent-prs-lint-rules">TeamDay：Lauren Tan 演講整理</a></li>
+    <li><a href="https://code.claude.com/docs/en/agents">Claude Code Docs：Run agents in parallel</a></li>
+  </ul>
+</section>
+
+</main>
+
+<footer data-skip>Agent 協作共識規格 · 2026-11-20</footer>
+</div>
+
+<script>
+(function () {
+  var root = document.documentElement;
+  var sel = document.getElementById('theme-select');
+  var saved = '';
+  try { saved = localStorage.getItem('nz-theme') || ''; } catch (e) {}
+  function apply(v) { if (v) { root.setAttribute('data-nz', v); } else { root.removeAttribute('data-nz'); } }
+  if (saved) { apply(saved); sel.value = saved; }
+  sel.addEventListener('change', function () {
+    apply(sel.value);
+    try { if (sel.value) { localStorage.setItem('nz-theme', sel.value); } else { localStorage.removeItem('nz-theme'); } } catch (e) {}
+  });
+
+  function clean(s) { return s.replace(/\s+/g, ' ').trim(); }
+  function cells(el) {
+    return Array.prototype.map.call(el.children, function (c) { return clean(c.textContent); }).filter(Boolean).join('｜');
+  }
+  function walk(el, out) {
+    Array.prototype.forEach.call(el.children, function (c) {
+      if (c.hasAttribute('data-skip')) { return; }
+      if (c.hasAttribute('data-text')) {
+        out.push(c.getAttribute('data-text'), '');
+        return;
+      }
+      var tag = c.tagName;
+      if (tag === 'H1') { out.push('# ' + clean(c.textContent), ''); }
+      else if (tag === 'H2') { out.push('', '## ' + clean(c.textContent), ''); }
+      else if (tag === 'H3') { out.push('', '### ' + clean(c.textContent)); }
+      else if (tag === 'P') { out.push(clean(c.textContent), ''); }
+      else if (tag === 'TR') { out.push('- ' + cells(c)); }
+      else if (tag === 'LI') { out.push('- ' + (c.children.length > 1 ? cells(c) : clean(c.textContent))); }
+      else { walk(c, out); if (tag === 'UL' || tag === 'TABLE') { out.push(''); } }
+    });
+  }
+  function specText() {
+    var out = [];
+    walk(document.getElementById('spec'), out);
+    return out.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
+  }
+  var btn = document.getElementById('copy-btn');
+  var status = document.getElementById('copy-status');
+  var box = document.getElementById('copy-fallback');
+  btn.addEventListener('click', function () {
+    var text = specText();
+    function fallback() {
+      box.value = text; box.style.display = 'block'; box.focus(); box.select();
+      status.textContent = '這裡無法直接寫入剪貼簿。文字已選取，請按 Ctrl/Cmd + C。';
+    }
+    try {
+      navigator.clipboard.writeText(text).then(function () {
+        status.textContent = '已複製 ' + text.length + ' 個字元。';
+      }, fallback);
+    } catch (e) { fallback(); }
+  });
+})();
+</script>
+</body>
+</html>
