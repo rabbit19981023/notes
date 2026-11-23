@@ -491,7 +491,7 @@ footer { margin-top:var(--space-7); padding-top:var(--space-4); border-top:var(-
       <tbody>
         <tr><th>已完成哪些事</th><td>各計畫 Progress 已勾選的項目、Outcomes &amp; Retrospective</td></tr>
         <tr><th>正在進行、還剩下哪些事</th><td>各計畫 Progress 還沒勾選的項目</td></tr>
-        <tr><th>哪些是 agent 自己做的決策</th><td>各計畫的 Decision Log</td></tr>
+        <tr><th>哪些是 agent 自己做的決策</th><td>各計畫的 Decision Log、暫時生效中的 ADR</td></tr>
         <tr><th>有沒有要我注意的事</th><td>各計畫的「需要你注意」、Surprises &amp; Discoveries</td></tr>
         <tr><th>哪些需要我決策</th><td>各計畫的「需要你決策」、提議中的 ADR</td></tr>
       </tbody>
@@ -507,7 +507,7 @@ footer { margin-top:var(--space-7); padding-top:var(--space-4); border-top:var(-
   <ul class="plain">
     <li>每個任務一份 ExecPlan，只有負責的子主線能寫。計畫之間不共用檔案，就沒有併發寫入。</li>
     <li>Worker 不寫計畫，只交報告給子主線。</li>
-    <li>衍生檔（全局狀態、總整理、ADR 的三份索引）由程式產生，不手改。產生時先寫到暫存檔，再整個換上去；重跑結果一樣，同時跑也不會寫壞。</li>
+    <li>衍生檔（全局狀態、總整理、ADR 的四份索引）由程式產生，不手改。產生時先寫到暫存檔，再整個換上去；重跑結果一樣，同時跑也不會寫壞。</li>
     <li>平行分支上不提交衍生檔，合併後由整合者重產一次，所以不會有合併衝突。</li>
     <li>ADR 用時間戳命名，平行任務各自建立也不會撞號，不需要配號。</li>
     <li>必須互斥的動作，例如合併到主分支，一次只讓一個 agent 做：用鎖，或固定交給單一角色。</li>
@@ -518,9 +518,11 @@ footer { margin-top:var(--space-7); padding-top:var(--space-4); border-top:var(-
   <ul class="plain">
     <li>只有會影響其他任務、或難以回頭的決定寫成 ADR。任務內的決定寫在該任務 ExecPlan 的 Decision Log。</li>
     <li>一個決策一份檔案，放在 <code>decisions/</code>，檔名是時間戳加簡短英文標題，例如 <code>20261123-1955-use-worktree-isolation.md</code>。平行任務各自建立也不會撞號，不需要配號。</li>
-    <li>每份 ADR 有三種狀態：提議中（暫時，等你確認）、生效中、已被取代。被取代時，連到取代它的那份 ADR。提議中的 ADR 列入「需要你決策」，你確認後才生效。</li>
+    <li>每份 ADR 有四種狀態：提議中、暫時生效中、生效中、已被取代。被取代時，連到取代它的那份 ADR。</li>
+    <li>提議中：還沒生效，等你決定。符合「重大」判準的決定（例如難以回頭）一律先寫成提議中，你確認後才生效、才開始做。</li>
+    <li>暫時生效中：先照這個決定往下做，到下一個檢查點交給你確認。用在會影響其他任務、但可以回頭的決定。你確認後改為生效中；你否決的話，就寫一份新的 ADR 取代它。</li>
     <li>ADR 寫好之後不再修改，只有狀態可以變。決策改了，就寫一份新的 ADR 取代舊的。</li>
-    <li>三份索引由程式從各 ADR 的狀態產生：<code>decisions/proposed.md</code> 列提議中的，<code>decisions/active.md</code> 列生效中的，<code>decisions/superseded.md</code> 列已被取代的。Agent 平時只讀 <code>active.md</code>。</li>
+    <li>四份索引由程式從各 ADR 的狀態產生：<code>decisions/proposed.md</code> 列提議中的，<code>decisions/provisional.md</code> 列暫時生效中的，<code>decisions/active.md</code> 列生效中的，<code>decisions/superseded.md</code> 列已被取代的。Agent 平時讀 <code>active.md</code> 和 <code>provisional.md</code>，這兩份是正在生效的決定。</li>
     <li>ADR 只記決策。進度這類流水帳不寫成 ADR。</li>
   </ul>
 
