@@ -147,6 +147,10 @@ figcaption b { font-family:var(--font-mono); font-size:11.5px; font-weight:600; 
 .legend { display:flex; flex-wrap:wrap; gap:var(--space-2) var(--space-4); margin-top:var(--space-4); font-size:13px; color:var(--ink-muted); justify-content:center; }
 .legend span::before { content:""; display:inline-block; width:12px; height:12px; margin-right:6px; vertical-align:-1px; border:1.2px solid var(--ink); border-radius:3px; background:var(--sw); }
 
+.tree { display:grid; grid-template-columns:repeat(4,minmax(110px,1fr)); column-gap:var(--space-3); align-items:center; min-width:520px; max-width:640px; margin:0 auto;
+  grid-template-areas:". main main ." "a1 a1 a2 a2" "subA subA subB subB" "a3 a4 . ." "w1 w2 . ."; }
+.t-main{grid-area:main} .t-a1{grid-area:a1} .t-a2{grid-area:a2} .t-subA{grid-area:subA} .t-subB{grid-area:subB}
+.t-a3{grid-area:a3} .t-a4{grid-area:a4} .t-w1{grid-area:w1} .t-w2{grid-area:w2}
 .cols { display:grid; grid-template-columns:repeat(2,minmax(200px,1fr)); gap:var(--space-5); min-width:460px; }
 .col-title { font-family:var(--font-hand); font-size:15px; font-weight:700; text-align:center; color:var(--ink-muted); margin-bottom:var(--space-3); }
 .nz-flow { display:flex; align-items:center; gap:var(--space-1); min-width:560px; }
@@ -210,12 +214,15 @@ footer { margin-top:var(--space-7); padding-top:var(--space-4); border-top:var(-
 <nav class="toc" aria-label="章節" data-skip>
   <a href="#overview">總覽</a>
   <a href="#problem">問題</a>
-  <a href="#rules">七條規則</a>
+  <a href="#rules">十一條規則</a>
+  <a href="#dispatch">派工</a>
   <a href="#roles">角色</a>
   <a href="#files">檔案層</a>
   <a href="#reading">你讀什麼</a>
+  <a href="#verify">驗證</a>
   <a href="#splitting">拆任務</a>
   <a href="#checkpoints">檢查點</a>
+  <a href="#approval">核准</a>
   <a href="#gap">工具缺口</a>
   <a href="#scope">不決定的事</a>
   <a href="#evidence">依據</a>
@@ -223,16 +230,16 @@ footer { margin-top:var(--space-7); padding-top:var(--space-4); border-top:var(-
 
 <section id="overview">
   <h2>所有角色只透過檔案層溝通</h2>
-  <figure data-text="［圖 1］檔案層在中央，是唯一事實來源，存放計畫、狀態、日誌、結果、證據。主線（只調度，不讀全文）、Worker（做完寫檔就結束）、驗證者（沒看過過程，產出證據）各自讀寫檔案層，彼此不直接傳長訊息。你只從檔案層讀狀態與證據。">
-    <div class="fig-box" role="group" aria-label="總覽圖：檔案層在中央，主線、Worker、驗證者各自讀寫檔案層，你只從檔案層讀取">
+  <figure data-text="［圖 1］檔案層在中央，是唯一事實來源，存放派工、決策、計畫、狀態、日誌、結果、證據。主線（只派工和決策，讀精華）、子主線（帶 worker 做事、改自己的計畫）、驗證者（沒看過過程，產出證據）各自讀寫檔案層，彼此不直接傳長訊息。你只從檔案層讀狀態與證據。">
+    <div class="fig-box" role="group" aria-label="總覽圖：檔案層在中央，主線、子主線、驗證者各自讀寫檔案層，你只從檔案層讀取">
       <div class="hub">
         <div class="nz-node nz-node-alt hub-you">你<small>只讀狀態與證據</small></div>
         <svg class="v-arrow hub-a1" viewBox="0 0 16 34" aria-hidden="true"><path d="M8 31 Q11 17 8 4 M3 10 L8 3 L13 10"/></svg>
-        <div class="nz-node nz-node-start hub-main">主線<small>只調度，不讀全文</small></div>
+        <div class="nz-node nz-node-start hub-main">主線<small>只派工和決策，讀精華</small></div>
         <svg class="nz-arrow hub-a2" viewBox="0 0 40 16" aria-hidden="true"><path d="M4 8 Q20 4 36 8 M30 3 L37 8 L31 13 M10 3 L3 8 L9 13"/></svg>
-        <div class="nz-node nz-node-key hub-files">檔案層<small>唯一事實來源</small><span class="kinds">計畫 · 狀態 · 日誌<br>結果 · 證據</span></div>
+        <div class="nz-node nz-node-key hub-files">檔案層<small>唯一事實來源</small><span class="kinds">派工 · 決策 · 計畫 · 狀態<br>日誌 · 結果 · 證據</span></div>
         <svg class="nz-arrow hub-a3" viewBox="0 0 40 16" aria-hidden="true"><path d="M4 8 Q20 4 36 8 M30 3 L37 8 L31 13 M10 3 L3 8 L9 13"/></svg>
-        <div class="nz-node nz-node-start hub-worker">Worker<small>做完寫檔就結束</small></div>
+        <div class="nz-node nz-node-start hub-worker">子主線<small>帶 worker，改計畫</small></div>
         <svg class="v-arrow hub-a4" viewBox="0 0 16 34" aria-hidden="true"><path d="M8 4 Q5 17 8 30 M3 24 L8 31 L13 24 M3 10 L8 3 L13 10"/></svg>
         <div class="nz-node nz-node-start hub-verify">驗證者<small>沒看過過程，產出證據</small></div>
       </div>
@@ -268,8 +275,8 @@ footer { margin-top:var(--space-7); padding-top:var(--space-4); border-top:var(-
   </div>
   <p style="margin-top:var(--space-4)">兩類都要從根本解決。只讓畫面安靜、context 照樣被佔的做法不算數。</p>
 
-  <figure data-text="［圖 2］現在的事件流：背景工作完成 → 主線回一段 → 回覆越疊越多 → 你讀完全部才敢確定沒漏。這份規格：背景工作完成 → 結果寫進檔案層 → 彙整成一份狀態 → 你讀狀態與證據。">
-    <div class="fig-box" role="group" aria-label="並排比較：事件流讓回覆越疊越多；規格的做法是把結果寫進檔案層，彙整成一份狀態">
+  <figure data-text="［圖 2］現在的事件流：背景工作完成 → 主線回一段 → 回覆越疊越多 → 你讀完全部才敢確定沒漏。這份規格：背景工作完成 → 結果寫進檔案層 → 程式組出一份狀態 → 你讀狀態與證據。">
+    <div class="fig-box" role="group" aria-label="並排比較：事件流讓回覆越疊越多；規格的做法是把結果寫進檔案層，由程式組出一份狀態">
       <div class="cols">
         <div>
           <div class="col-title">事件流</div>
@@ -287,7 +294,7 @@ footer { margin-top:var(--space-7); padding-top:var(--space-4); border-top:var(-
           <svg class="v-arrow" viewBox="0 0 16 34" aria-hidden="true"><path d="M8 3 Q11 17 8 30 M3 24 L8 31 L13 24"/></svg>
           <div class="nz-node nz-node-key">結果寫進檔案層</div>
           <svg class="v-arrow" viewBox="0 0 16 34" aria-hidden="true"><path d="M8 3 Q5 17 8 30 M3 24 L8 31 L13 24"/></svg>
-          <div class="nz-node nz-node-key">彙整成一份狀態</div>
+          <div class="nz-node nz-node-key">程式組出一份狀態</div>
           <svg class="v-arrow" viewBox="0 0 16 34" aria-hidden="true"><path d="M8 3 Q11 17 8 30 M3 24 L8 31 L13 24"/></svg>
           <div class="nz-node nz-node-alt">你讀狀態與證據<small>份量不隨事件數成長</small></div>
         </div>
@@ -298,35 +305,51 @@ footer { margin-top:var(--space-7); padding-top:var(--space-4); border-top:var(-
 </section>
 
 <section id="rules">
-  <h2>七條規則</h2>
+  <h2>十一條規則</h2>
   <div class="grid2">
     <article class="nz-card">
       <h3><span class="rule-id">P1</span> 檔案當記憶</h3>
-      <p>計畫、進度、決策、結果、證據都寫進檔案，跟專案一起保存。沒寫進檔案的事，對接手的 agent 等於不存在。</p>
+      <p>計畫、進度、決策、結果、證據都寫進檔案，存在會留下來的地方：暫存區和雲端容器都會被清掉，值得保留的要 commit 或推上去。對話的自動摘要不算記憶，因為看不出留下了什麼。沒寫進檔案的事，對接手的 agent 等於不存在。</p>
     </article>
     <article class="nz-card">
       <h3><span class="rule-id">P2</span> 對話用完就丟</h3>
-      <p>任何角色只靠檔案就能接手。階段之間換乾淨的 context：只帶上一階段的產出進場，不帶對話紀錄。</p>
+      <p>任何角色只靠檔案就能接手。預設每個階段新開乾淨的 context，只帶上一階段的產出進場，不帶對話紀錄。同一範圍的延續或修正可以續用同一個 agent；驗證一律新開，主線自己做的小修改除外。</p>
     </article>
     <article class="nz-card">
       <h3><span class="rule-id">P3</span> 只傳參照，不傳全文</h3>
-      <p>角色之間不靠長訊息傳話。Worker 把產出存進檔案層，回給主線的只有一句結論和去哪裡看。不失真，也省 token。</p>
+      <p>角色之間不靠長訊息傳話。下層把產出寫進檔案層，只回固定幾段：結論、做了哪些決定、證據、風險，加上路徑。上層拿路徑去讀整理過的精華報告，不讀過程。往上只交一次最終報告，不傳進度，也不透過回報提問。</p>
     </article>
     <article class="nz-card">
       <h3><span class="rule-id">P4</span> 寫入單線</h3>
-      <p>同一批檔案，同一時間只有一個寫入者。其他角色貢獻判斷，不動手改。共用的狀態也只有一個角色能寫。</p>
+      <p>同一批檔案，同一時間只有一個寫入者。每份文件只有一個擁有者，擁有者就是負責那一層的角色。其他角色貢獻判斷，不動手改。</p>
     </article>
     <article class="nz-card">
       <h3><span class="rule-id">P5</span> 狀態和日誌分開寫</h3>
-      <p>兩者都要。狀態回答「現在是什麼情況」，給你讀。日誌回答「發生過什麼」，給接手的 agent 和追查時用。</p>
+      <p>兩者都要。狀態回答「現在是什麼情況」，會被改寫，給你讀。日誌回答「發生過什麼」，只追加，給接手的 agent 和追查時用；日誌就是 git 歷史，加上各計畫的 Surprises &amp; Discoveries。兩種寫法不混用。</p>
     </article>
     <article class="nz-card">
       <h3><span class="rule-id">P6</span> 用驗證取代閱讀</h3>
-      <p>你不讀過程，也不逐行讀產出，只檢查驗證產物：影片、截圖、圖表、測試與形式化驗證的輸出。負責驗證的角色沒看過製作過程。</p>
+      <p>你不讀過程，也不逐行讀產出，只檢查驗證產物：影片、截圖、圖表、測試與形式化驗證的輸出。驗證分兩層：做事的人先自驗，再由沒看過過程的驗證者驗收，主線只收一份驗收報告。主線自己做的小修改除外，由主線自己驗。</p>
     </article>
     <article class="nz-card">
       <h3><span class="rule-id">P7</span> 主線保持短</h3>
-      <p>長任務不放在主線跑，交給背景 session 或 workflow。主線只調度：不讀全文，不自己維護狀態。</p>
+      <p>長任務不放在主線跑。主線派工一律派子主線，自己只寫派工和決策，讀子主線交回的精華。例外：範圍有限的小任務（幾次讀檔、一次搜尋、一個小修改、一次檢查）主線自己做，做完也由主線自己驗證，因為派工的成本和每次交接的損失都比好處大。小修改只限沒有子主線擁有的檔案。</p>
+    </article>
+    <article class="nz-card">
+      <h3><span class="rule-id">P8</span> 計畫由做事的人更新，狀態由程式組出</h3>
+      <p>每個任務的 ExecPlan 是活文件，由負責的子主線隨進度、新發現和定案的設計決策持續修訂。全局狀態不用 LLM 重寫，由程式從各計畫檔組出來。</p>
+    </article>
+    <article class="nz-card">
+      <h3><span class="rule-id">P9</span> 主線只在三種時機對你開口</h3>
+      <p>Agent 的結果不轉述給你，只寫進檔案。主線只在需要你決策、到了檢查點、你主動問的時候開口。工具內建的行為若是結果一到就摘要給使用者，以這條為準。</p>
+    </article>
+    <article class="nz-card">
+      <h3><span class="rule-id">P10</span> 主線先弄懂才派工</h3>
+      <p>主線要完整理解這件事，並先把派工的內容想清楚、寫清楚，才能派工。寫不出清楚的派工單，就代表還沒懂到可以交出去。每一次資訊傳遞都有損失，派工單不清楚只會放大損失。沒懂就派，下層會做白工、回一堆雜訊，甚至整件事做錯，主線的 context 也跟著毀掉。</p>
+    </article>
+    <article class="nz-card">
+      <h3><span class="rule-id">P11</span> 理解的人寫，乾淨的人查</h3>
+      <p>產出由最懂的人寫：做事的 agent 寫自己的報告，主線寫給你的回覆。查核交給新開、沒看過過程的角色，它只核對每一點是否指得回證據，回報不符之處，不改寫。沒看過過程的角色不重寫別人的成果，那只是多一次轉述。</p>
     </article>
   </div>
 
@@ -348,14 +371,70 @@ footer { margin-top:var(--space-7); padding-top:var(--space-4); border-top:var(-
     <table>
       <thead><tr><th>症狀</th><th>處理它的規則</th></tr></thead>
       <tbody>
-        <tr><th>重複的資訊</th><td>P5 狀態只留現況；彙整時去重</td></tr>
-        <tr><th>重點被埋</th><td>狀態分成四組；簡報先講結論；要你決策的事主動通知</td></tr>
-        <tr><th>前後矛盾</th><td>P4 共用狀態只有一個寫入者；寫簡報的角色沒看過過程</td></tr>
-        <tr><th>雜訊引發幻覺</th><td>P2、P3、P7：雜訊不進主線，階段之間不帶對話</td></tr>
-        <tr><th>浪費 context 與 token</th><td>P3 只傳參照；P7 主線保持短</td></tr>
+        <tr><th>重複的資訊</th><td>P5 狀態只留現況；子主線綜合時去重；回報不重講已確立的事</td></tr>
+        <tr><th>重點被埋</th><td>P9 主線只在三種時機開口；狀態分成四組；回覆先講結論</td></tr>
+        <tr><th>前後矛盾</th><td>P4 每份文件一個擁有者；P8 狀態由程式組出，不經 LLM 轉述；P11 查核者用乾淨的 context 核對</td></tr>
+        <tr><th>雜訊引發幻覺</th><td>P2、P3、P7、P9：雜訊不進主線，結果不轉述給你；P10 先懂再派，下層不回垃圾</td></tr>
+        <tr><th>浪費 context 與 token</th><td>P3 只傳參照；P7 主線保持短，小查詢不另開 agent</td></tr>
       </tbody>
     </table>
   </div>
+</section>
+
+<section id="dispatch">
+  <h2>主線派子主線，子主線帶 worker</h2>
+  <figure data-text="［圖 4］主線（寫派工和決策）依任務類型派出子主線 A 和子主線 B。子主線 A 有多件事，再派兩個 worker，各自寫自己的結果檔；子主線 A 修訂自己的計畫、綜合結果、交出精華報告。子主線 B 只有一件事，自己做，不再往下派。">
+    <div class="fig-box" role="group" aria-label="派工樹：主線派出兩個子主線，子主線 A 再派兩個 worker，子主線 B 自己做">
+      <div class="tree">
+        <div class="nz-node t-main">主線<small>寫派工和決策</small></div>
+        <svg class="v-arrow t-a1" viewBox="0 0 16 34" aria-hidden="true"><path d="M8 3 Q5 17 8 30 M3 24 L8 31 L13 24"/></svg>
+        <svg class="v-arrow t-a2" viewBox="0 0 16 34" aria-hidden="true"><path d="M8 3 Q11 17 8 30 M3 24 L8 31 L13 24"/></svg>
+        <div class="nz-node t-subA">子主線 A<small>修訂計畫，綜合結果</small></div>
+        <div class="nz-node t-subB">子主線 B<small>只有一件事，自己做</small></div>
+        <svg class="v-arrow t-a3" viewBox="0 0 16 34" aria-hidden="true"><path d="M8 3 Q5 17 8 30 M3 24 L8 31 L13 24"/></svg>
+        <svg class="v-arrow t-a4" viewBox="0 0 16 34" aria-hidden="true"><path d="M8 3 Q11 17 8 30 M3 24 L8 31 L13 24"/></svg>
+        <div class="nz-node nz-node-start t-w1">Worker<small>寫自己的結果檔</small></div>
+        <div class="nz-node nz-node-start t-w2">Worker<small>寫自己的結果檔</small></div>
+      </div>
+      <div class="legend">
+        <span style="--sw:var(--surface)">調度與綜合</span>
+        <span style="--sw:var(--sunk)">做一件事</span>
+      </div>
+    </div>
+    <figcaption><b>圖 4</b>每一層只寫自己那一層的文件，往上只交精華。</figcaption>
+  </figure>
+  <ul class="plain">
+    <li>主線派工一律派子主線，依任務類型派一到多個。</li>
+    <li>子主線是這一類任務的 leader：派 worker、綜合各 worker 的結果、交出最終的精華報告。只有一個 worker 時，子主線自己就是那個 worker。</li>
+    <li>子主線把較小的任務派給平行的專門 worker，前提是它們不改同一批檔案。</li>
+    <li>Worker 的報告固定分成結論、決定、證據、風險幾段。程式把同一個子主線底下的報告併成一份，不改寫任何內容；綜合並交出最終答案的是子主線。</li>
+    <li>Worker 多到子主線讀不完時，主線改派更多子主線，不多加一層。</li>
+    <li>主線拿參照去讀子主線的精華報告，不讀 worker 的過程。</li>
+    <li>例外：範圍有限的小任務，主線自己做，不派子主線；小修改只限沒有子主線擁有的檔案。</li>
+    <li>層數上限兩層：主線 → 子主線 → worker。Worker 不再往下派。</li>
+    <li>要帶 worker 的子主線用新開的 agent。繼承上層整段 context 的分身（fork）只做事，不再往下派。</li>
+  </ul>
+  <h3>派工的規矩，每一層都適用</h3>
+  <ul class="plain">
+    <li>派工單要自足：目標和原因、已排除什麼、範圍（包括哪些是別人負責的）、完成的樣子、只研究還是可以修改。查詢給確切指令，調查給問題，不給步驟。</li>
+    <li>理解不外包：讀完下層的精華，寫出具體的下一步，不寫「根據你的發現去做」。</li>
+    <li>派出去就交給它：不重做、不重推它的發現，執行中也不去看它的過程。</li>
+    <li>小任務自己做，少開 agent，不為一件小事開好幾個平行。</li>
+    <li>續用或新開：修正失敗、延伸剛做的事，續用同一個；驗證別人的成果、換方法重來、不相關的事，新開。</li>
+  </ul>
+  <h3>主線自己讀，還是派出去讀</h3>
+  <p>判斷標準不是檔案多不多，也不是任務大小，而是讀完的內容之後還用不用得到。</p>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>主線自己讀</th><th>派出去讀</th></tr></thead>
+      <tbody>
+        <tr><td>要靠這些內容做決定、寫派工單（P10 要求主線必須懂）</td><td>要在大量內容裡找東西，事先不知道在哪</td></tr>
+        <tr><td>之後還會一再用到</td><td>讀完只需要結論或位置</td></tr>
+        <tr><td>範圍已知，就是那幾個檔</td><td>會讀到大量用不到的東西：log、搜尋結果、整個目錄</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>兩者合用最常見：先派出去定位，回報位置和摘錄，主線再自己讀關鍵段落。</p>
 </section>
 
 <section id="roles">
@@ -364,11 +443,11 @@ footer { margin-top:var(--space-7); padding-top:var(--space-4); border-top:var(-
     <table>
       <thead><tr><th>角色</th><th>做什麼</th><th>不做什麼</th></tr></thead>
       <tbody>
-        <tr><th>主線</th><td>拆任務、派工、收參照</td><td class="no">不讀全文、不跑長任務、不維護狀態</td></tr>
-        <tr><th>Worker</th><td>做一件事。收尾時寫下自己的結果，回一句參照後結束</td><td class="no">不改別人負責的檔案、不寫共用狀態</td></tr>
-        <tr><th>彙整者</th><td>把各 worker 的結果彙整成共用狀態，去重、消除矛盾</td><td class="no">不做任務本身</td></tr>
-        <tr><th>驗證者</th><td>只拿需求和產出，實際驗證並留下證據</td><td class="no">不看製作過程、不修改產出</td></tr>
-        <tr><th>簡報者</th><td>你回來時，只依狀態和證據寫一份簡報</td><td class="no">不看製作過程、不加自己的推測</td></tr>
+        <tr><th>主線</th><td>先弄懂、寫清楚派工單，再依任務類型派子主線；寫派工和決策、讀子主線的精華報告、寫給你的回覆；範圍有限的小任務自己做也自己驗</td><td class="no">不讀 worker 的過程、不跑長任務、不手寫全局狀態、不轉述 agent 的結果、不自己驗收（自己做的小修改除外）</td></tr>
+        <tr><th>子主線</th><td>一類任務的 leader：派 worker、綜合結果、修訂自己的計畫、交出精華報告；只有一件事時自己做</td><td class="no">不改其他子主線擁有的文件</td></tr>
+        <tr><th>Worker</th><td>做一件事，先自驗。收尾時寫下自己的結果，回幾句結論、做了哪些決定和路徑給子主線</td><td class="no">不改計畫、不改別人負責的檔案</td></tr>
+        <tr><th>驗證者</th><td>新開；只拿需求和程式碼，看實際變更、證明它能動，留下證據</td><td class="no">不看製作過程、不拿上層的結論、不修改產出</td></tr>
+        <tr><th>查核者</th><td>新開；核對回覆和報告的每一點是否指得回證據，回報不符之處</td><td class="no">不改寫、不補內容、不看製作過程</td></tr>
         <tr><th>你</th><td>在檢查點讀狀態與證據、做決策</td><td class="no">不讀過程對話</td></tr>
       </tbody>
     </table>
@@ -377,57 +456,151 @@ footer { margin-top:var(--space-7); padding-top:var(--space-4); border-top:var(-
 </section>
 
 <section id="files">
-  <h2>檔案層放五種東西</h2>
+  <h2>檔案層放七種東西</h2>
   <div class="table-wrap">
     <table>
       <thead><tr><th>種類</th><th>回答的問題</th><th>誰寫</th><th>主要讀者</th></tr></thead>
       <tbody>
-        <tr><th>計畫</th><td>要做什麼、怎樣算完成</td><td>主線</td><td>所有角色</td></tr>
-        <tr><th>狀態</th><td>現在是什麼情況</td><td>彙整者</td><td>你、主線、簡報者</td></tr>
-        <tr><th>日誌</th><td>發生過什麼、做過哪些決定</td><td>各角色，只追加自己的</td><td>接手的 agent、追查時的你</td></tr>
-        <tr><th>結果</th><td>這件工作的產出</td><td>負責那件工作的 worker</td><td>驗證者、彙整者</td></tr>
-        <tr><th>證據</th><td>憑什麼相信產出是對的</td><td>驗證者</td><td>你、簡報者</td></tr>
+        <tr><th>派工</th><td>派了誰、做什麼</td><td>主線</td><td>所有角色</td></tr>
+        <tr><th>決策（ADR）</th><td>為什麼這樣決定、取代了哪個舊決定</td><td>做決定的那一層</td><td>所有角色</td></tr>
+        <tr><th>任務計畫（ExecPlan）</th><td>這個任務怎麼做、做到哪、待你處理什麼、發現了什麼、成果如何</td><td>負責的子主線，隨進度持續修訂</td><td>該子主線的 worker、驗證者</td></tr>
+        <tr><th>狀態</th><td>現在是什麼情況</td><td>程式，從各任務計畫組出</td><td>你、主線、查核者</td></tr>
+        <tr><th>日誌</th><td>發生過什麼</td><td>git 歷史：每個有意義的步驟一個 commit</td><td>接手的 agent、追查時的你</td></tr>
+        <tr><th>結果</th><td>這件工作的產出</td><td>負責那件工作的 worker</td><td>子主線、驗證者</td></tr>
+        <tr><th>證據</th><td>憑什麼相信產出是對的</td><td>驗證者</td><td>你、主線、查核者</td></tr>
       </tbody>
     </table>
   </div>
-  <p>狀態會被改寫，永遠只留現況。日誌只追加，不回頭改。兩者不放在同一處。</p>
+  <p>狀態永遠只留現況，日誌只追加、不回頭改。每份文件只有一個擁有者。</p>
+
+  <h3>任務計畫用 ExecPlan</h3>
+  <p>每個任務一份 ExecPlan，由負責的子主線隨進度修訂。它有六段：</p>
+  <ul class="plain">
+    <li><b>Progress：</b>勾選清單，永遠反映現況。每個停下來的點，都記下已完成和還剩下的部分。</li>
+    <li><b>需要你決策：</b>卡住、等你決定的事。</li>
+    <li><b>需要你注意：</b>沒有卡住，但你應該知道的風險或異常。</li>
+    <li><b>Surprises &amp; Discoveries：</b>意料之外的發現和走過的死路，接手的人不必重走。</li>
+    <li><b>Decision Log：</b>這個任務內的決定直接寫在這裡，一兩行就好。會影響其他任務、或難以回頭的決定寫成 ADR，這裡只放連結。</li>
+    <li><b>Outcomes &amp; Retrospective：</b>結束時寫：做到了什麼、和原目標差多少、學到什麼。</li>
+  </ul>
+
+  <h3>你要的總整理，從所有 ExecPlan 組出來</h3>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>你常問的</th><th>從哪裡來</th></tr></thead>
+      <tbody>
+        <tr><th>已完成哪些事</th><td>各計畫 Progress 已勾選的項目、Outcomes &amp; Retrospective</td></tr>
+        <tr><th>正在進行、還剩下哪些事</th><td>各計畫 Progress 還沒勾選的項目</td></tr>
+        <tr><th>哪些是 agent 自己做的決策</th><td>各計畫的 Decision Log</td></tr>
+        <tr><th>有沒有要我注意的事</th><td>各計畫的「需要你注意」、Surprises &amp; Discoveries</td></tr>
+        <tr><th>哪些需要我決策</th><td>各計畫的「需要你決策」、提議中的 ADR</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>總整理由程式組出來，主線再在上面寫一段短回覆，見 /reply 一節。</p>
+
+  <h3>日誌就是 git 歷史</h3>
+  <p>每個有意義的步驟一個 commit，commit 訊息用 Conventional Commits 的寫法。只有要對外發佈時，才另外維護 Keep a Changelog 格式的 CHANGELOG。</p>
+
+  <h3>大量平行任務時，避免互相踩到</h3>
+  <p>原則：能用「單一擁有者」避開的併發，就不用鎖；剩下非共用不可的，才加鎖或交給單一角色依序做。</p>
+  <ul class="plain">
+    <li>每個任務一份 ExecPlan，只有負責的子主線能寫。計畫之間不共用檔案，就沒有併發寫入。</li>
+    <li>Worker 不寫計畫，只交報告給子主線。</li>
+    <li>衍生檔（全局狀態、總整理、ADR 的三份索引）由程式產生，不手改。產生時先寫到暫存檔，再整個換上去；重跑結果一樣，同時跑也不會寫壞。</li>
+    <li>平行分支上不提交衍生檔，合併後由整合者重產一次，所以不會有合併衝突。</li>
+    <li>ADR 用時間戳命名，平行任務各自建立也不會撞號，不需要配號。</li>
+    <li>必須互斥的動作，例如合併到主分支，一次只讓一個 agent 做：用鎖，或固定交給單一角色。</li>
+    <li>會改到同一批檔案的工作，沿用「預設不拆」的規則。</li>
+  </ul>
+
+  <h3>決策用 ADR 記錄</h3>
+  <ul class="plain">
+    <li>只有會影響其他任務、或難以回頭的決定寫成 ADR。任務內的決定寫在該任務 ExecPlan 的 Decision Log。</li>
+    <li>一個決策一份檔案，放在 <code>decisions/</code>，檔名是時間戳加簡短英文標題，例如 <code>20261123-1955-use-worktree-isolation.md</code>。平行任務各自建立也不會撞號，不需要配號。</li>
+    <li>每份 ADR 有三種狀態：提議中（暫時，等你確認）、生效中、已被取代。被取代時，連到取代它的那份 ADR。提議中的 ADR 列入「需要你決策」，你確認後才生效。</li>
+    <li>ADR 寫好之後不再修改，只有狀態可以變。決策改了，就寫一份新的 ADR 取代舊的。</li>
+    <li>三份索引由程式從各 ADR 的狀態產生：<code>decisions/proposed.md</code> 列提議中的，<code>decisions/active.md</code> 列生效中的，<code>decisions/superseded.md</code> 列已被取代的。Agent 平時只讀 <code>active.md</code>。</li>
+    <li>ADR 只記決策。進度這類流水帳不寫成 ADR。</li>
+  </ul>
+
+  <h3>暫存和保留分開</h3>
+  <p><code>.scratch/</code> 放進行中、可丟棄的檔案，例如中間產物、草稿、原始輸出，不進版控。值得保留的，移到會 commit 的地方。</p>
 </section>
 
 <section id="reading">
-  <h2>平時看四組狀態，回來時讀一份簡報</h2>
-  <figure data-text="［圖 4］各 worker 的結果 → 彙整者 → 狀態 → 簡報者 → 你。驗證者留下的證據，也是簡報者的材料。狀態由彙整者持續維護；簡報在你回來時才寫，寫的角色沒看過過程。">
-    <div class="fig-box" role="group" aria-label="流程：各自的結果交給彙整者寫成狀態，簡報者依狀態與證據寫簡報給你">
+  <h2>/reply：程式組出的狀態，加上主線寫的回覆</h2>
+  <figure data-text="［圖 5］第一路：任務計畫 → 組裝程式 → 四組狀態。第二路：子主線報告 → 主線寫短回覆，附證據 → 查核者核對，不改寫。你下 /reply 時，兩路一起呈現。">
+    <div class="fig-box" role="group" aria-label="/reply 的兩路：程式從任務計畫組出四組狀態；主線依子主線報告寫短回覆，交查核者核對">
       <div class="nz-flow">
-        <div class="nz-node nz-node-key">各自的結果</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg>
-        <div class="nz-node nz-node-start">彙整者</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 8 Q20 12 36 8 M30 3 L37 8 L31 13"/></svg>
-        <div class="nz-node nz-node-key">狀態</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg>
-        <div class="nz-node nz-node-start">簡報者</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 8 Q20 12 36 8 M30 3 L37 8 L31 13"/></svg>
-        <div class="nz-node nz-node-alt">你</div>
+        <div class="nz-node nz-node-key">任務計畫</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg>
+        <div class="nz-node nz-node-start">組裝程式</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 8 Q20 12 36 8 M30 3 L37 8 L31 13"/></svg>
+        <div class="nz-node nz-node-key">四組狀態</div>
       </div>
-      <div class="nz-flow-label">驗證者留下的證據，也是簡報者的材料</div>
+      <div class="nz-flow" style="margin-top:var(--space-4)">
+        <div class="nz-node nz-node-key">子主線報告</div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg>
+        <div class="nz-node nz-node-start">主線<small>寫短回覆，附證據</small></div><svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 8 Q20 12 36 8 M30 3 L37 8 L31 13"/></svg>
+        <div class="nz-node nz-node-start">查核者<small>核對，不改寫</small></div>
+      </div>
+      <div class="nz-flow-label">你下 /reply 時，兩路一起呈現</div>
     </div>
-    <figcaption><b>圖 4</b>狀態由彙整者持續維護。簡報在你回來時才寫，寫的角色沒看過過程。</figcaption>
+    <figcaption><b>圖 5</b>狀態交給程式，回覆交給最懂的主線，查核交給乾淨的 context。</figcaption>
   </figure>
+  <ul class="plain">
+    <li>狀態由程式組出，不經 LLM 轉述。</li>
+    <li>回覆由主線寫。主線讀過每個子主線的精華報告，是最懂整件事的角色。</li>
+    <li>到檢查點之前，主線的回覆先交給查核者核對；查核者只回報指不回證據或互相矛盾的地方，由主線修正。</li>
+  </ul>
 
   <h3>每件工作落在四組之一</h3>
   <ul class="nz-list">
-    <li class="nz-list-row"><span class="nz-badge nz-badge-bad">需要你決策</span><span class="nz-list-title">卡住了，你不決定就不會往下走。主動通知你，不排隊等你回來。</span></li>
+    <li class="nz-list-row"><span class="nz-badge nz-badge-bad">需要你決策</span><span class="nz-list-title">卡住了，你不決定就不會往下走；不可逆或對外的動作（推送、發佈、刪除）也算。主動通知你，不排隊等你回來。</span></li>
     <li class="nz-list-row"><span class="nz-badge nz-badge-warn">需要你注意</span><span class="nz-list-title">沒有卡住，但出現風險或異常，你應該知道。</span></li>
     <li class="nz-list-row"><span class="nz-badge">還剩下</span><span class="nz-list-title">正在做，或排著還沒做。</span></li>
     <li class="nz-list-row"><span class="nz-badge nz-badge-ok">已完成</span><span class="nz-list-title">做完，而且附上證據。沒有證據不算完成。</span></li>
   </ul>
 
-  <h3>簡報的三個要求</h3>
+  <h3>回覆與回報的要求</h3>
   <ul class="plain">
     <li>先結論，再細節。</li>
     <li>每一點都指得回證據。</li>
     <li>同一件事只出現一次，前後不矛盾。</li>
+    <li>如實：失敗附上輸出、跳過的要說、驗證過就直說不打折；還沒回來的結果不能先寫。</li>
+    <li>給建議，不給選項清單；不重講已確立的事、不重議你定過的決定、不提不會做的選項。</li>
+    <li>結案寫三件事：做了什麼、成果在哪、下一步要跑的指令。</li>
+    <li>列出做了哪些決定，包括沒被要求、自己判斷的事。</li>
+  </ul>
+</section>
+
+<section id="verify">
+  <h2>驗證分兩層，宣告完成前一定有人看過實際變更</h2>
+  <figure data-text="［圖 6］做事的人先自驗 → 新開的驗證者 → 證據 → 主線讀結論。驗證者只拿需求和程式碼，不拿上層的結論。">
+    <div class="fig-box" role="group" aria-label="驗證流程：做事的人自驗，新開的驗證者驗證並留下證據，主線讀結論">
+      <div class="nz-flow">
+        <div class="nz-node nz-node-start">做事的人<small>先自驗</small></div>
+        <svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg>
+        <div class="nz-node nz-node-start">驗證者<small>新開，沒看過過程</small></div>
+        <svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 8 Q20 12 36 8 M30 3 L37 8 L31 13"/></svg>
+        <div class="nz-node nz-node-key">證據</div>
+        <svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg>
+        <div class="nz-node nz-node-start">主線<small>讀結論</small></div>
+      </div>
+      <div class="nz-flow-label">驗證者只拿需求和程式碼，不拿上層的結論</div>
+    </div>
+    <figcaption><b>圖 6</b>摘要只代表它打算做什麼，證據才代表它做了什麼。</figcaption>
+  </figure>
+  <ul class="plain">
+    <li>第一層：做事的人先自驗，再回報完成。</li>
+    <li>第二層：新開一個沒看過過程的驗證者，只給它需求和程式碼。不給上層的假設或結論，因為交出去的假設通常會被確認回來。</li>
+    <li>驗證要證明它能動，不是確認它存在；要測邊界和錯誤路徑；失敗要追查，不能一句「無關」帶過。</li>
+    <li>宣告完成前，驗證者要看過實際的變更。驗收由驗證者做，主線不自己驗收，只收一份驗收報告。</li>
+    <li>例外：主線自己做的小修改，由主線自己驗證，不另開驗證者。</li>
   </ul>
 </section>
 
 <section id="splitting">
   <h2>會改到同一批檔案的工作，預設不拆</h2>
-  <p>Agent 自己按任務拆分、自己開 session，不需要你逐一派工。拆之前先問一個問題：這兩件工作會改到同一批檔案嗎？</p>
+  <p>主線依任務類型派子主線，子主線再視需要拆給 worker，不需要你逐一派工。拆之前先問一個問題：這兩件工作會改到同一批檔案嗎？</p>
   <div class="grid3">
     <article class="nz-card">
       <div class="card-tag"><span class="nz-badge nz-badge-ok">不會</span></div>
@@ -453,24 +626,51 @@ footer { margin-top:var(--space-7); padding-top:var(--space-4); border-top:var(-
 </section>
 
 <section id="checkpoints">
-  <h2>你只在固定檢查點介入</h2>
+  <h2>你只在四個時機介入</h2>
   <ul class="nz-list">
     <li class="nz-list-row"><span class="nz-badge nz-badge-info">檢查點</span><span class="nz-list-title">研究完成後</span></li>
     <li class="nz-list-row"><span class="nz-badge nz-badge-info">檢查點</span><span class="nz-list-title">重大設計決定前</span></li>
-    <li class="nz-list-row"><span class="nz-badge nz-badge-info">檢查點</span><span class="nz-list-title">交接時</span></li>
-    <li class="nz-list-row"><span class="nz-badge nz-badge-info">檢查點</span><span class="nz-list-title">發佈前</span></li>
+    <li class="nz-list-row"><span class="nz-badge nz-badge-info">檢查點</span><span class="nz-list-title">發佈前：看驗證證據，也看架構層的變動</span></li>
     <li class="nz-list-row"><span class="nz-badge nz-badge-bad">任何時候</span><span class="nz-list-title">出現需要你決策的事，主動通知你</span></li>
   </ul>
-  <p>檢查點之間，agent 自己往下做，不需要你盯著。上面四個時點是起點，確切位置和數量可以調整。</p>
+  <p>前三個是固定的時間點，第四個是隨時可能發生的中斷。這四個時機之外，agent 自己往下做，不需要你盯著。</p>
+  <p>設計決定符合任一條就算重大：不可逆、會改到介面或資料結構、偏離原計畫、有兩個以上合理的選項。拿不準就問你。</p>
+</section>
+
+<section id="approval">
+  <h2>你的核准要逐字送到動手的那一層</h2>
+  <figure data-text="［圖 7］你核准 → 主線逐字轉交 → 新開的執行者 → 回報結果。讀過不可信內容的 agent 只負責準備，不負責執行。">
+    <div class="fig-box" role="group" aria-label="核准流程：你核准，主線逐字轉交給新開的執行者，執行者回報結果">
+      <div class="nz-flow">
+        <div class="nz-node nz-node-alt">你核准</div>
+        <svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg>
+        <div class="nz-node nz-node-start">主線<small>逐字轉交</small></div>
+        <svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 8 Q20 12 36 8 M30 3 L37 8 L31 13"/></svg>
+        <div class="nz-node nz-node-start">執行者<small>新開，只做這一步</small></div>
+        <svg class="nz-arrow" viewBox="0 0 40 16" aria-hidden="true"><path d="M2 9 Q20 4 36 8 M30 3 L37 8 L31 13"/></svg>
+        <div class="nz-node nz-node-key">回報結果</div>
+      </div>
+      <div class="nz-flow-label">讀過不可信內容的 agent 只負責準備，不負責執行</div>
+    </div>
+    <figcaption><b>圖 7</b>核准不會自己往下傳，要帶著你的原話送到動手的那一層。</figcaption>
+  </figure>
+  <ul class="plain">
+    <li>核准不會自動往下傳，agent 之間傳的訊息也不算你的核准。主線要把你的原話逐字交給實際執行的 agent。</li>
+    <li>核准只對那一次、那件事有效，不延續到下一個情境。</li>
+    <li>讀過不可信內容（網頁、PR 文字、外部檔案）的 agent，和執行高權限動作的 agent 分開。執行者只拿核准過的那一步，不重讀那些內容。</li>
+    <li>不可逆或對外的動作（推送、發佈、刪除），預設要你核准。</li>
+  </ul>
 </section>
 
 <section id="gap">
   <h2>工具還沒補上的缺口，用繞的</h2>
   <p>以 Claude Code 為例：在單一 session 裡，背景通知會逐一觸發主線回覆。撰寫這份規格時，沒有找到能合併或延後這些通知的設定。</p>
   <p>規格的做法是繞過它，也就是 P7：長任務交給背景 session 或 workflow，主線不會被反覆叫醒。</p>
+  <p>Claude Code 的內建規則要求 agent 結果一回來就摘要給使用者，和 P9 正好相反。實作時要把 P9 寫進專案指示（例如 CLAUDE.md），否則洪水會照舊。</p>
+  <p>分層派工需要子主線能再派 worker，也就是巢狀 subagent。Claude Code 是否允許、允許幾層，取決於版本和設定，實作前先實測。它的 fork 依內建規則不再往下派，所以要帶 worker 的子主線用新開的 agent。</p>
   <div class="nz-callout">
     <span class="nz-callout-icon" aria-hidden="true">!</span>
-    <p><b>靜音只是補丁。</b>要求主線不回話、或把畫面上的文字換掉，畫面會安靜，context 照樣被佔。可以當過渡，不能當解法。</p>
+    <p><b>靜音只是補丁。</b>要求主線不回話、或把畫面上的文字換掉，畫面會安靜，context 照樣被佔。可以當過渡，不能當解法。正解是看分好組的狀態（例如 Claude Code 的 agent view），不是讀訊息流。</p>
   </div>
 </section>
 
@@ -478,13 +678,14 @@ footer { margin-top:var(--space-7); padding-top:var(--space-4); border-top:var(-
   <h2>這份規格不決定的事</h2>
   <p>下面這些留給實作者設計：</p>
   <ul class="plain">
-    <li>檔案的格式、欄位和目錄結構</li>
+    <li>檔案的格式、欄位和目錄結構（ADR、ExecPlan 的段落、<code>.scratch/</code> 除外）</li>
     <li>各角色的提示詞</li>
     <li>用哪個工具的哪個功能來開 session、隔離工作副本、發通知</li>
+    <li>子主線怎麼依任務類型劃分、一次派幾個</li>
+    <li>狀態怎麼從任務計畫組出來</li>
     <li>四組狀態用什麼畫面呈現</li>
-    <li>檢查點的確切位置和數量</li>
   </ul>
-  <p>實作可以自由選擇，只要七條規則，以及每個角色「不做什麼」那一欄都守住。</p>
+  <p>實作可以自由選擇，只要十一條規則，以及每個角色「不做什麼」那一欄都守住。</p>
 </section>
 
 <section id="evidence">
@@ -500,7 +701,16 @@ footer { margin-top:var(--space-7); padding-top:var(--space-4); border-top:var(-
         <tr><th>P4</th><td>Cognition</td><td>上線數據：乾淨 context 的審查每個 PR 約抓出 2 個 bug，約 58% 屬嚴重。平行寫入仍未被採用</td></tr>
         <tr><th>P5</th><td>Anthropic 的長時間 agent harness</td><td>做法描述：進度紀錄與完成清單分開存放</td></tr>
         <tr><th>P6</th><td>Lauren Tan 的團隊</td><td>團隊自報：單月約 11,000 個 PR，revert 約 0.5%</td></tr>
-        <tr><th>P7</th><td>Manus；Claude Code 的背景 session</td><td>Manus 讓主執行者自己維護清單時，約三分之一的動作花在更新清單（第三方整理）</td></tr>
+        <tr><th>P7</th><td>Claude Code 內建 system prompt；Claude Code 的背景 session</td><td>內建規則：幾次讀檔、一次搜尋、一個小修改、一次檢查這類小任務自己做，不另開 subagent</td></tr>
+        <tr><th>P8</th><td>OpenAI Codex 的 ExecPlan；Google ADK</td><td>做法描述：計畫是活文件，由執行者持續修訂；各 agent 寫自己那一格狀態，context 由狀態組出</td></tr>
+        <tr><th>分層派工</th><td>Addy Osmani；xAI；Claude Code coordinator 模式</td><td>做法描述：用少數 lead 各帶幾個專家；由 leader agent 綜合各 agent 的結果</td></tr>
+        <tr><th>檢查點</th><td>HumanLayer</td><td>團隊自報：寫程式前先寫設計文件，PR 返工率從 50% 降到 5% 以下；只讀計畫、不讀程式碼，codebase 最後走壞</td></tr>
+        <tr><th>P9</th><td>沒有外部依據</td><td>這條刻意覆蓋 Claude Code 內建的「結果一到就摘要給使用者」，依據是這份規格要解決的回覆洪水</td></tr>
+        <tr><th>P10</th><td>Claude Code 內建 system prompt（v2.1.330）</td><td>內建規則：寫不出清楚的派工單，就代表還沒懂到可以交出去；理解不能外包</td></tr>
+        <tr><th>P11</th><td>Anthropic Research；OpenAI Codex；Anthropic 的多 agent 指南；MAST</td><td>Research 由 lead 綜合、另一個 Claude 核對引用；Codex 由做事的 agent 附上終端紀錄與測試輸出當證據。Anthropic 看過把規劃、執行、審查拆成獨立 agent 的團隊，每次交接都遺失 context；MAST 的多 agent 失敗中，agent 之間的失準約占 37%</td></tr>
+        <tr><th>ExecPlan、日誌</th><td>OpenAI Codex 的 ExecPlan；Anthropic 的長時間 agent harness；Conventional Commits；Keep a Changelog</td><td>ExecPlan 規定 Progress、Surprises &amp; Discoveries、Decision Log、Outcomes &amp; Retrospective 四段必備，Progress 要永遠反映現況；Anthropic 讓新開 context 的 agent 靠進度檔加 git 歷史接手。流水帳沒有像 ADR 那樣公認的單一標準</td></tr>
+        <tr><th>ADR</th><td>Michael Nygard 的 ADR；Martin Fowler；log4brains</td><td>業界通行做法：一個決策一份檔案；ADR 不再修改，只有狀態會變</td></tr>
+        <tr><th>派工、驗證、核准</th><td>Claude Code 內建 system prompt（v2.1.330 的 coordinator 模式與 Agent 工具說明）</td><td>做法描述：派工單自足、理解不外包、兩層驗證、核准逐字轉交給新開的執行者</td></tr>
       </tbody>
     </table>
   </div>
@@ -515,12 +725,26 @@ footer { margin-top:var(--space-7); padding-top:var(--space-4); border-top:var(-
     <li><a href="https://humanlayer.dev/blog/advanced-context-engineering">HumanLayer：Advanced Context Engineering for Coding Agents</a></li>
     <li><a href="https://www.teamday.ai/ai/lauren-tan-spacexsi-grok-bot-11000-agent-prs-lint-rules">TeamDay：Lauren Tan 演講整理</a></li>
     <li><a href="https://code.claude.com/docs/en/agents">Claude Code Docs：Run agents in parallel</a></li>
+    <li><a href="https://github.com/Piebald-AI/claude-code-system-prompts">Claude Code 內建 system prompts（v2.1.330 抽出版）</a></li>
+    <li><a href="https://developers.openai.com/cookbook/articles/codex_exec_plans">OpenAI Cookbook：Using PLANS.md for multi-hour problem solving</a></li>
+    <li><a href="https://adk.dev/workflows/patterns/">Google ADK：Multi-agent workflow patterns</a></li>
+    <li><a href="https://developers.googleblog.com/en/architecting-efficient-context-aware-multi-agent-framework-for-production/">Google：Architecting efficient context-aware multi-agent framework</a></li>
+    <li><a href="https://docs.x.ai/developers/model-capabilities/text/multi-agent">xAI Docs：Multi Agent</a></li>
+    <li><a href="https://x.ai/cli">xAI：Grok Build</a></li>
+    <li><a href="https://addyosmani.com/blog/code-agent-orchestra/">Addy Osmani：The Code Agent Orchestra</a></li>
+    <li><a href="https://www.claude.com/blog/building-multi-agent-systems-when-and-how-to-use-them">Anthropic：Building multi-agent systems: When and how to use them</a></li>
+    <li><a href="https://arxiv.org/abs/2503.13657">Cemri 等：Why Do Multi-Agent LLM Systems Fail?（MAST）</a></li>
+    <li><a href="https://openai.com/index/introducing-codex/">OpenAI：Introducing Codex</a></li>
+    <li><a href="https://www.martinfowler.com/bliki/ArchitectureDecisionRecord.html">Martin Fowler：Architecture Decision Record</a></li>
+    <li><a href="https://github.com/thomvaill/log4brains">log4brains</a></li>
+    <li><a href="https://www.conventionalcommits.org/">Conventional Commits</a></li>
+    <li><a href="https://keepachangelog.com/">Keep a Changelog</a></li>
   </ul>
 </section>
 
 </main>
 
-<footer data-skip>Agent 協作共識規格 · 2026-11-20</footer>
+<footer data-skip>Agent 協作共識規格 · 2026-11-23</footer>
 </div>
 
 <script>
